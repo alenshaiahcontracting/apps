@@ -45,6 +45,14 @@ html,body{height:100%;font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
 .sidebar-header h1{font-size:14px;font-weight:600;color:var(--text-primary)}
 .sidebar-header span{font-size:10px;color:var(--text-secondary)}
 .sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-folder{margin:0}
+.nav-folder-header{display:flex;align-items:center;gap:8px;padding:6px 16px;cursor:pointer;color:var(--text-primary);font-size:13px;font-weight:600;transition:all .15s;border-left:3px solid transparent;user-select:none}
+.nav-folder-header:hover{background:var(--gray-light)}
+.nav-folder-header .arrow{font-size:10px;transition:transform .2s;width:14px;text-align:center}
+.nav-folder-header .arrow.open{transform:rotate(90deg)}
+.nav-folder-items{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.nav-folder-items.open{max-height:200px}
+.nav-folder-items .nav-item{padding-left:28px}
 .nav-section{padding:6px 16px 4px;font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text-secondary);letter-spacing:.5px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;color:var(--text-primary);font-size:13px;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
 .nav-item:hover{background:var(--gray-light)}
@@ -270,33 +278,29 @@ body.dark th .sort-arrow{color:var(--text-secondary)}
       <span class="icon">📊</span> Executive Dashboard <span class="count" id="count-all">0</span>
     </a>
     <div class="nav-section">Department Views</div>
+    <div class="nav-folder">
+      <div class="nav-folder-header" onclick="toggleFolder(this)">
+        <span class="arrow">▶</span><span class="icon">📐</span> Shop Drawing
+      </div>
+      <div class="nav-folder-items">
+        <a class="nav-item" data-view="substructure" onclick="switchView('substructure')">
+          <span class="icon">🏗️</span> Substructure <span class="count" id="count-substructure">0</span><span class="status-dot" id="dot-substructure" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
+        </a>
+        <a class="nav-item" data-view="superstructure" onclick="switchView('superstructure')">
+          <span class="icon">🏢</span> Superstructure <span class="count" id="count-superstructure">0</span><span class="status-dot" id="dot-superstructure" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
+        </a>
+      </div>
+    </div>
     <a class="nav-item" data-view="procurement" onclick="switchView('procurement')">
       <span class="icon">📦</span> Procurement <span class="count" id="count-procurement">0</span><span class="status-dot" id="dot-procurement" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
     </a>
-    <a class="nav-item" data-view="engineering" onclick="switchView('engineering')">
-      <span class="icon">📐</span> Engineering <span class="count" id="count-engineering">0</span><span class="status-dot" id="dot-engineering" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
+    <a class="nav-item" data-view="calculations" onclick="switchView('calculations')">
+      <span class="icon">🧮</span> Calculations <span class="count" id="count-calculations">0</span><span class="status-dot" id="dot-calculations" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
     </a>
-    <!-- Hidden: uncomment to restore Construction
-    <a class="nav-item" data-view="construction" onclick="switchView('construction')">
-      <span class="icon">🏗️</span> Construction <span class="count" id="count-construction">0</span><span class="status-dot" id="dot-construction" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
+    <a class="nav-item" data-view="methodstatement" onclick="switchView('methodstatement')">
+      <span class="icon">📋</span> Method Statement <span class="count" id="count-methodstatement">0</span><span class="status-dot" id="dot-methodstatement" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
     </a>
-    -->
-    <!-- Hidden: uncomment to restore Cost Control
-    <a class="nav-item" data-view="cost" onclick="switchView('cost')">
-      <span class="icon">💰</span> Cost Control <span class="count" id="count-cost">0</span><span class="status-dot" id="dot-cost" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
-    </a>
-    -->
-    <!-- Hidden: uncomment to restore Planning
-    <a class="nav-item" data-view="planning" onclick="switchView('planning')">
-      <span class="icon">📅</span> Planning <span class="count" id="count-planning">0</span><span class="status-dot" id="dot-planning" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
-    </a>
-    -->
-    <a class="nav-item" data-view="qaqc" onclick="switchView('qaqc')">
-      <span class="icon">✅</span> QA/QC <span class="count" id="count-qaqc">0</span><span class="status-dot" id="dot-qaqc" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
-    </a>
-    <a class="nav-item" data-view="hse" onclick="switchView('hse')">
-      <span class="icon">🛡️</span> HSE <span class="count" id="count-hse">0</span><span class="status-dot" id="dot-hse" style="display:inline-block;vertical-align:middle;margin-left:4px"></span>
-    </a>
+  </nav>
   </nav>
 </aside>
 
@@ -356,29 +360,9 @@ body.dark th .sort-arrow{color:var(--text-secondary)}
         <div id="settings-auth-status" style="font-size:12px;margin-top:4px;color:var(--gray-text)"></div>
       </div>
 
-      <!-- ===== SECTION 2: CONNECT TO LIST ===== -->
+      <!-- ===== SECTION 2: PER-VIEW LISTS ===== -->
       <div class="cfg-section">
-        <div class="cfg-section-title">2. Connect to SharePoint List</div>
-        <div class="cfg-section-desc">Enter your site and list name, or paste a sharing link.</div>
-        <label>SharePoint Site URL</label>
-        <input type="text" id="cfg-site" placeholder="https://sascontractingsa.sharepoint.com/sites/Alenshaiah" value="https://sascontractingsa.sharepoint.com/sites/Alenshaiah">
-        <div class="hint">Full URL of your SharePoint team site.</div>
-        <label>List Name</label>
-        <input type="text" id="cfg-list" value="Shop Drawing Status" placeholder="Project Management Tracker">
-        <div class="hint">Display name of the SharePoint list (created from Excel import).</div>
-        <label>Or paste a sharing link (auto-fills above)</label>
-        <input type="text" id="cfg-link" placeholder="https://...sharepoint.com/:l:/g/personal/...">
-        <div class="hint">Paste a list sharing link to auto-extract site URL and list name.</div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button class="btn btn-primary" onclick="connectToSharePoint()">🔌 Connect</button>
-          <button class="btn btn-outline" onclick="useDemoData()">📁 Use Demo Data</button>
-        </div>
-        <div id="conn-status" class="connection-status disconnected" style="display:none">Not connected.</div>
-      </div>
-
-      <!-- ===== SECTION 3: PER-VIEW LISTS (ADVANCED) ===== -->
-      <div class="cfg-section">
-        <div class="cfg-section-title" style="cursor:pointer" onclick="toggleViewConfigs()">3. Per-View Lists <span id="view-cfg-toggle" style="font-size:11px">(show)</span></div>
+        <div class="cfg-section-title" style="cursor:pointer" onclick="toggleViewConfigs()">2. Per-View Lists <span id="view-cfg-toggle" style="font-size:11px">(show)</span></div>
         <div id="view-list-configs-wrap" style="display:none">
           <div class="cfg-section-desc">Configure a separate SharePoint list for each department view.</div>
           <div id="view-list-configs"></div>
@@ -389,7 +373,6 @@ body.dark th .sort-arrow{color:var(--text-secondary)}
         </div>
       </div>
 
-      <div id="conn-status-hidden" style="display:none"></div>
     </div>
   </div>
 
@@ -625,24 +608,19 @@ let currentView = 'dashboard';
 let sortCol = null;
 let sortAsc = true;
 let DATA = [...DEMO_DATA];
-let dataSource = 'demo'; // 'demo' | 'sp-live' | 'sp-error'
-let spSiteUrl = '';
-let spListName = '';
 
 // Per-view data sources: each view can have {site, list, data, connected}
 const viewData = {};
-const VIEW_KEYS = ['procurement','engineering','construction','cost','planning','qaqc','hse'];
+const VIEW_KEYS = ['procurement','substructure','superstructure','calculations','methodstatement'];
 VIEW_KEYS.forEach(k => { viewData[k] = { site:'', list:'', data:[], connected:false }; });
 
 const VIEWS = {
   dashboard:{title:'Executive Dashboard',dept:null,cols:['proj','prog','status','budget','actual','forecast','delayDays','priority','dept','pm'],group:'proj'},
-  procurement:{title:'Procurement Tracker',dept:'Procurement',cols:['id','engDisc','matDesc','manufacturer','subcontractor','rfq','poRef','poDate','expDel','leadTime','pqStatus','matSubStatus','deliveryStatus','remarks']},
-  engineering:{title:'Engineering - Shop Drawings',dept:'Engineering',cols:['id','dwgNo','dwgTitle','dwgType','rev00','rev01','rev02','rev03','eng','checker','appr','subDate','clientReview','apprDate','ifcDate','engDisc','spec','calc','rfi','tq','status','priority','phase','part','remarks']},
-  construction:{title:'Construction Tracker',dept:'Construction',cols:['id','proj','actId','actName','workFront','cArea','contractor','foreman','workStatus','dailyProg','weeklyProg','compPct','status','pStart','pFinish','aStart','aFinish','inspReq','siteIssue','ncr','punch','permit','priority','remarks']},
-  cost:{title:'Cost Control Tracker',dept:'Cost Control',cols:['id','proj','actId','actName','wbs','budget','committed','actual','forecast','costVar','ev','pv','cpi','spi','prog','status']},
-  planning:{title:'Planning Tracker',dept:'Planning',cols:['id','proj','actId','actName','primId','schedStatus','pStart','pFinish','baseFinish','curFinish','delayDays','floatDays','critical','recovery','prog','status','priority']},
-  qaqc:{title:'QA/QC - Method Statements',dept:'QA/QC',cols:['contractorRef','finalRev','finalCode','discipline','description','remarks']},
-  hse:{title:'HSE Tracker',dept:'HSE',cols:['id','proj','actId','actName','risk','permitStat','incident','toolbox','safetyInsp','hseAction','hseClose','status','priority','assigned']}
+  procurement:{title:'Procurement Tracker',dept:'Procurement',cols:['id','proj','actId','actName','cat','matDesc','matCode','manufacturer','subcontractor','vendor','vendorContact','rfq','rfqDate','techEval','commEval','pr','poRef','poDate','plannedPoDate','actualPoDate','expDel','eta','actDel','leadTime','shipMethod','pqStatus','pqPlanned','pqActual','pqRef','matSubStatus','matPlanned','matActual','matRef','forecastDate','deliveryStatus','whStatus','inspStatus','cost','curr','engDisc','spec','calc','status','priority','assigned','remarks','pStart','pFinish','aStart','aFinish','due','prog','budget','committed','actual','forecast','costVar','ev','pv','cpi','spi','delayDays']},
+   substructure:{title:'Substructure - Shop Drawings',dept:'Substructure',cols:['id','proj','dwgNo','dwgTitle','dwgType','rev00','rev01','rev02','rev03','rev04','eng','checker','appr','subDate','clientReview','apprDate','ifcDate','engDisc','spec','calc','rfi','tq','status','priority','phase','part','assigned','remarks','desStatus','actId','actName','cat','due','pStart','pFinish','aStart','aFinish','delayDays']},
+   superstructure:{title:'Superstructure',dept:'Superstructure',cols:['id','proj','dwgNo','dwgTitle','dwgType','rev00','rev01','rev02','rev03','rev04','eng','checker','appr','subDate','clientReview','apprDate','ifcDate','engDisc','spec','calc','rfi','tq','status','priority','phase','part','assigned','remarks','desStatus','actId','actName','cat','due','pStart','pFinish','aStart','aFinish','delayDays']},
+  calculations:{title:'Calculations',dept:'Calculations',cols:['id','type','sheetName','phase','buildingPart','discipline','expSubDate','status','assigned','priority','due','delayDays']},
+  methodstatement:{title:'Method Statement',dept:'Method Statement',cols:['id','proj','contractorRef','finalRev','finalCode','docType','discipline','description','remarks','subject','status','assigned','priority','due','delayDays']}
 };
 
 const COL_LABELS = {
@@ -665,12 +643,18 @@ const COL_LABELS = {
   title:'Title',dwgNo:'Drawing #',dwgTitle:'Drawing Title',dwgType:'Drawing Type',rev:'Revision',
   eng:'Engineer',checker:'Checker',appr:'Approver',subDate:'Submission Date',clientReview:'Client Review',
   apprDate:'Approval Date',ifcDate:'IFC Date',spec:'Spec #',calc:'Calc Ref',phase:'Phase',discLead:'Disc Lead',
+  type:'Type',buildingPart:'Building/Part',expSubDate:'Expected Submission Date',sheetName:'Sheet Name',
+  'S_x002e_No_x002e_':'S.No','S.No':'S.No','SNo':'S.No',
+  'Type':'Type','Building/Part':'Building/Part','Building_x002f_Part':'Building/Part','BUILDING_x002f_PART':'Building/Part',
+  'Expected Submission Date':'Expected Submission Date','Expected_x0020_Submission_x0020_Date':'Expected Submission Date','EXPECTED_x0020_SUBMISSION_x0020_DATE':'Expected Submission Date',
+  'Sheet Name':'Sheet Name','Sheet_x0020_Name':'Sheet Name','SHEET_x0020_NAME':'Sheet Name','SHEET NAME':'Sheet Name',
+  'Drawing Status':'Drawing Status','Drawing_x0020_Status':'Drawing Status','DRAWING_x0020_STATUS':'Drawing Status','DRAWING STATUS':'Drawing Status',
   hseAction:'HSE Action',hseClose:'HSE Closeout',
   hazard:'Hazard',hazardType:'Hazard Type',location:'Location',cat:'Category',
   qaInsp:'QA Insp Req',matInsp:'Material Inspection',testReport:'Test Report',qaNcr:'QA NCR',qaAction:'QA Action',qaStatus:'Quality Status',qaClose:'QA Closeout',
   contractorRef:'Contractor Ref.',finalRev:'Final Rev.',finalCode:'Status Code',
   discipline:'Discipline',description:'Subject / Description',remarks:'Remarks',
-  rev00:'REV 00',rev01:'REV 01',rev02:'REV 02',rev03:'REV 03',
+   rev00:'REV 00',rev01:'REV 01',rev02:'REV 02',rev03:'REV 03',rev04:'REV 04',
   // Procurement Tracker Log column labels
   'Discipline':'Discipline','Description':'Description','RFQ':'RFQ',
   'S.No':'S.No','Technical Evaluation':'Tech Eval','Commercial Comparision':'Comm Comp',
@@ -719,13 +703,14 @@ const ALIAS_SHORTS = new Set([
   'hseAction','hseClose','budget','committed','actual','forecast','costVar','ev','pv','cpi','spi',
   'contractorRef','finalRev','finalCode','docType','discipline','description',
   'primId','schedStatus','baseFinish','curFinish','recovery','critical','floatDays',
-  'rev00','rev01','rev02','rev03','part','proj','status','priority','dept',
+   'rev00','rev01','rev02','rev03','rev04','part','proj','status','priority','dept',
     'toolbox','safetyInsp','hazard','hazardType','location',
     'reqDate','closeDate','targetDate',
   'leadTime','plannedDelivery','matSubStatus','description',
   'techEval','commEval','pqPlanned','pqActual','pqRef','pqStatus',
   'matPlanned','matActual','forecastDate','matRef','manufacturer','subcontractor',
-  'poRef','actualPoDate','shipMethod','eta','deliveryStatus','plannedPoDate'
+  'poRef','actualPoDate','shipMethod','eta','deliveryStatus','plannedPoDate',
+  'type','sheetName','buildingPart','expSubDate'
 ]);
 function fmtCurrency(n){return typeof n==='number'?'$'+n.toLocaleString():n}
 function getVal(item,col){return item[col]??''}
@@ -786,16 +771,14 @@ function calcDelay(item){
 // Per-view person columns (mapped short names)
 const VIEW_PERSON_COLS = {
     procurement:['assigned'],
-    engineering:['eng','checker','appr','assigned'],
-    construction:['foreman','contractor','assigned'],
-    cost:['assigned','eng'],
-    planning:['assigned','eng'],
-    qaqc:['assigned'],
-    hse:['assigned']
+    substructure:['eng','checker','appr','assigned'],
+    superstructure:['eng','checker','appr','assigned'],
+    calculations:['assigned'],
+    methodstatement:['assigned']
 };
 const PERSON_LABELS = {
     foreman:'Foreman',contractor:'Contractor',assigned:'Assigned To',
-    eng:'Engineer',checker:'Checker',appr:'Approver'
+    eng:'Engineer',checker:'Checker',appr:'Approver',reviewer:'Reviewer'
 };
 const ALL_PERSON_COLS = [...new Set(Object.values(VIEW_PERSON_COLS).flat())];
 function getTeam(items,personCols){
@@ -878,7 +861,7 @@ async function fetchColumnNames(siteUrl, listName){
     });
     if(!resp.ok) return null;
     const json = await resp.json();
-    const skip = ['ID','ContentType','Modified','Created','AuthorLookupId','EditorLookupId','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId'];
+    const skip = ['ID','ContentType','Modified','Created','AuthorLookupId','EditorLookupId','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author'];
     const rename = {}, pairs=[], allCols=[];
     (json.value||[]).forEach(col => {
         const n=col.name;
@@ -962,93 +945,8 @@ async function apiFetch(url){
     return fetch(url, opts);
 }
 
-async function connectToSharePoint(){
-    const site=document.getElementById('cfg-site').value.trim();
-    const list=document.getElementById('cfg-list').value.trim();
-    const link=document.getElementById('cfg-link').value.trim();
-
-    let finalSite=site, finalList=list;
-
-    // Try to extract from link
-    if(link&&!finalSite){
-        const extracted=extractSiteFromLink(link);
-        if(extracted){
-            finalSite=extracted;
-            document.getElementById('cfg-site').value=finalSite; // show user what was extracted
-        }
-    }
-
-    // Try common list name
-    if(!finalList)finalList='Project Management Tracker';
-
-    if(!finalSite){
-        showConnStatus('Enter a SharePoint site URL or paste a list sharing link.','disconnected');
-        return;
-    }
-
-    // Detect if running as local file (REST API won't work due to CORS)
-    if(location.protocol==='file:'){
-        showConnStatus('⚠ Cannot connect from a local file. Upload to GitHub Pages or SharePoint.','disconnected');
-        return;
-    }
-
-    showConnStatus('Connecting to SharePoint...','loading');
-
-    try{
-        const siteUrl=finalSite.replace(/\/+$/,'');
-        const spItems = await fetchSPListItems(siteUrl, finalList);
-
-        if(!spItems||spItems.length===0){
-            showConnStatus('Connected but list is empty.','disconnected');
-            return;
-        }
-
-        // Use raw SharePoint columns as-is (no predefined mapping)
-        const skipKeys = ['ID','id','ContentType','Modified','Created','AuthorLookupId','EditorLookupId','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag'];
-        const rawKeys = Object.keys(spItems[0]).filter(k=>!skipKeys.includes(k));
-        DATA = spItems.map(spItem => {
-            const item = {};
-            rawKeys.forEach(k => { item[k] = spItem[k] ?? ''; });
-            // Critical fields for app to work
-            item.dept = 'Engineering';
-            item.proj = spItem['Project Code'] || spItem['Porject Name'] || spItem.Title || 'N/A';
-            item.status = spItem['DRAWING STATUS'] || spItem['REV 00 STATUS'] || 'Not Set';
-            item.priority = 'Medium';
-            return item;
-        });
-
-        spSiteUrl=siteUrl;
-        spListName=finalList;
-        dataSource='sp-live';
-        storage.setItem('pmt-site',siteUrl);
-        storage.setItem('pmt-list',finalList);
-
-        showConnStatus(`Connected! Loaded ${DATA.length} items from "${finalList}".`,'connected');
-        // Show raw keys on page for debugging
-        const first = DATA[0]||{};
-        const allKeys = Object.keys(first).filter(k=>k!=='dept'&&k!=='priority');
-        const el=document.getElementById('conn-status');
-        el.innerHTML += '<div style="margin-top:6px;font-size:12px;background:#fff;padding:8px;border:1px solid #ccc;border-radius:3px;max-height:200px;overflow:auto">' +
-            '<strong>📋 Keys in DATA[0] (' + allKeys.length + '):</strong><br>' +
-            '<code>' + allKeys.join(', ') + '</code></div>';
-        // Render raw data directly (bypass view system)
-        renderRawData();
-        updateBadge();
-        updateCounts();
-        VIEW_KEYS.forEach(v=>updateViewNavDot(v));
-        closeSettings();
-    }catch(err){
-        dataSource='sp-error';
-        showConnStatus(`Connection failed: ${err.message}. Using demo data.`,'disconnected');
-        updateBadge();
-    }
-}
-
 function useDemoData(){
     DATA=[...DEMO_DATA];
-    dataSource='demo';
-    showConnStatus('Using embedded demo data with 8 sample activities.','connected');
-    updateBadge();
     updateCounts();
     VIEW_KEYS.forEach(v=>updateViewNavDot(v));
     renderCurrent();
@@ -1115,7 +1013,7 @@ async function connectSingleView(view){
             updateViewNavDot(view,'online');
             return true;
         }
-        const skipKeys = ['ID','id','Title','ContentType','Modified','Created','AuthorLookupId','EditorLookupId','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag'];
+        const skipKeys = ['ID','id','Title','ContentType','Modified','Created','AuthorLookupId','EditorLookupId','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author'];
         const schemaInfo = columnNameMap[list];
         const schemaCols = schemaInfo?.allColumns;
         const rename = schemaInfo?.rename || {};
@@ -1203,6 +1101,18 @@ async function connectSingleView(view){
                 'REV 02 OUT(MDH)':['rev02'],'REV 02 IN':['rev02'],
                 'REV03':['rev03'],'REV 03':['rev03'],'REV_03':['rev03'],'REV_x0020_03':['rev03'],
                 'REV 03 (OUT MDH)':['rev03'],
+                'REV 03 Status':['rev03'],'REV 03 STATUS':['rev03'],'REV03 STATUS':['rev03'],
+                'REV_x0020_03_x0020_Status':['rev03'],'REV_x0020_03_x0020_STATUS':['rev03'],
+                'REV04':['rev04'],'REV 04':['rev04'],'REV_04':['rev04'],'REV_x0020_04':['rev04'],
+                'REV 04 (OUT MDH)':['rev04'],
+                'REV 04 Status':['rev04'],'REV 04 STATUS':['rev04'],'REV04 STATUS':['rev04'],
+                'REV_x0020_04_x0020_Status':['rev04'],'REV_x0020_04_x0020_STATUS':['rev04'],
+                'REV 02 Status':['rev02'],'REV 02 STATUS':['rev02'],'REV02 STATUS':['rev02'],
+                'REV_x0020_02_x0020_Status':['rev02'],'REV_x0020_02_x0020_STATUS':['rev02'],
+                'REV 01 Status':['rev01'],'REV 01 STATUS':['rev01'],'REV01 STATUS':['rev01'],
+                'REV_x0020_01_x0020_Status':['rev01'],'REV_x0020_01_x0020_STATUS':['rev01'],
+                'REV 00 Status':['rev00'],'REV 00 STATUS':['rev00'],'REV00 STATUS':['rev00'],
+                'REV_x0020_00_x0020_Status':['rev00'],'REV_x0020_00_x0020_STATUS':['rev00'],
                 'Phase':['phase'],'Part':['part'],
                 'ProjectPhase':['phase'],'Drawing_x0020_Number':['dwgNo'],'Drawing_x0020_Title':['dwgTitle'],'Drawing_x0020_Type':['dwgType'],
                 'Assigned_x0020_To':['assigned'],'AssignedTo':['assigned'],'ResponsibleDepartment':['dept'],
@@ -1233,6 +1143,7 @@ async function connectSingleView(view){
                 'Contractor_x0020_Ref_x002e_':['contractorRef'],'ContractorRef':['contractorRef'],
                 'Final_x0020_Rev_x002e_':['finalRev'],'FinalRev':['finalRev'],
                 'Final_x0020_Code':['finalCode'],
+                'Final Code':['finalCode'],'FINAL CODE':['finalCode'],'finalCode':['finalCode'],
                 'Doc_x0020_Type':['docType'],'DocType':['docType'],
                 'Discipline':['discipline'],
                 'Subject_x0020__x002f__x0020_Description':['description'],'SubjectDescription':['description'],'Subject':['description'],'Description':['description'],
@@ -1240,6 +1151,12 @@ async function connectSingleView(view){
                 'CostVariance':['costVar'],'EarnedValue':['ev'],'PlannedValue':['pv'],'CPI':['cpi'],'SPI':['spi'],
                 'PrimaveraActivityID':['primId'],'ScheduleStatus':['schedStatus'],'BaselineFinish':['baseFinish'],
                 'CurrentFinish':['curFinish'],'RecoveryPlan':['recovery'],'CriticalActivity':['critical'],'FloatDays':['floatDays'],
+                // Calculations list aliases
+                'TYPE':['type'],'Type':['type'],
+                'BUILDING/PART':['buildingPart'],'Building/Part':['buildingPart'],'Building_x002f_Part':['buildingPart'],'BUILDING_x002f_PART':['buildingPart'],
+                'EXPECTED SUBMISSION DATE':['expSubDate'],'Expected Submission Date':['expSubDate'],'Expected_x0020_Submission_x0020_Date':['expSubDate'],
+                'SHEET NAME':['sheetName'],'Sheet Name':['sheetName'],'Sheet_x0020_Name':['sheetName'],'SHEET_x0020_NAME':['sheetName'],
+                'DRAWING STATUS':['status'],'Drawing Status':['status'],'Drawing_x0020_Status':['status'],'DRAWING_x0020_STATUS':['status'],
                 // All-caps column names from Maseel Activity export
                 'STATUS':['status'],'PROGRESS':['prog'],'START':['pStart'],'FINISH':['pFinish'],
                 'start':['pStart'],'finish':['pFinish']
@@ -1366,32 +1283,17 @@ function updateViewNavDot(view,state){
     else dot.className='status-dot offline';
 }
 
-function showConnStatus(msg,type){
-    const el=document.getElementById('conn-status');
-    el.style.display='block';
-    el.textContent=msg;
-    el.className='connection-status '+type;
-}
-
 function updateBadge(){
     const gear=document.getElementById('gear-btn');
-    if(dataSource==='sp-live'){
-        gear.className='gear-btn live';
-        gear.title=`Live: ${DATA.length} items`;
-    }else if(dataSource==='sp-error'){
-        gear.className='gear-btn error';
-        gear.title='Connection Error';
-    }else{
-        gear.className='gear-btn demo';
-        gear.title='Demo Data';
-    }
+    gear.className='gear-btn demo';
+    gear.title='Demo Data';
 }
 
 function updateCounts(){
     document.getElementById('count-all').textContent=countAll();
     VIEW_KEYS.forEach(v=>{
         const deptName=v.charAt(0).toUpperCase()+v.slice(1);
-        const label=v==='cost'?'Cost Control':v==='qaqc'?'QA/QC':deptName;
+        const label=v==='methodstatement'?'Method Statement':deptName;
         const vd=viewData[v];
         const cnt=(vd.connected&&vd.data.length>0)?vd.data.length:countByDept(label);
         const countEl=document.getElementById('count-'+v);
@@ -1409,8 +1311,6 @@ function toggleViewConfigs(){
 }
 
 function openSettings(){
-    if(spSiteUrl)document.getElementById('cfg-site').value=spSiteUrl;
-    if(spListName)document.getElementById('cfg-list').value=spListName;
     const tenant=storage.getItem('pmt-tenant');
     const client=storage.getItem('pmt-client');
     if(tenant)document.getElementById('cfg-tenant').value=tenant;
@@ -1484,17 +1384,16 @@ function renderCurrent(){
 }
 
 function renderDashboardCharts(){
-    const DEPT_KEY_TO_NAME={engineering:'Engineering',procurement:'Procurement',qaqc:'QA/QC',hse:'HSE'};
+    const DEPT_KEY_TO_NAME={substructure:'Substructure',superstructure:'Superstructure',calculations:'Calculations',methodstatement:'Method Statement',procurement:'Procurement'};
     const allowedDeptNames=myPerms==='ALL'?Object.values(DEPT_KEY_TO_NAME):Object.keys(DEPT_KEY_TO_NAME).filter(k=>getMyAccess(k)!=='none').map(k=>DEPT_KEY_TO_NAME[k]);
     const deptFilter=document.getElementById('chart-dept-filter')?.value||'';
     const metric=document.getElementById('chart-metric-filter')?.value||'count';
     const cViews=VIEW_KEYS.filter(v=>viewData[v]?.connected&&viewData[v]?.data?.length>0&&(myPerms==='ALL'||getMyAccess(viewToDeptId(v))!=='none'));
-    let all;if(cViews.length>0){all=[];cViews.forEach(v=>{all=all.concat(viewData[v].data);});}else all=[...DATA].filter(x=>allowedDeptNames.includes(x.dept));
-    all=all.filter(x=>x.dept!=='Construction');
+    let all;if(cViews.length>0){all=[];cViews.forEach(v=>{all=all.concat(viewData[v].data);});    }else all=[...DATA].filter(x=>allowedDeptNames.includes(x.dept));
     if(!all.length)return;
     const filtered=deptFilter?all.filter(x=>x.dept===deptFilter):all;
     const statusData={};filtered.forEach(x=>{const s=x.status||'Not Set';statusData[s]=(statusData[s]||0)+1});
-    const deptColors={Engineering:'#4C5D71',Procurement:'#ED7D31',Construction:'#00B7C3','QA/QC':'#0078D4',HSE:'#D92C2C'};
+    const deptColors={Substructure:'#4C5D71',Superstructure:'#00B7C3',Calculations:'#8764B8','Method Statement':'#0078D4',Procurement:'#ED7D31'};
     const allDepts=allowedDeptNames;
     const deptTargets=deptFilter?[deptFilter]:allDepts;
     const deptData={};
@@ -1545,7 +1444,7 @@ function renderDashboardCharts(){
                 const vk=VIEW_KEYS.find(k=>VIEWS[k].title===label||VIEWS[k].dept===label);
                 let cols=(vk&&VIEWS[vk]?.cols)||['proj','prog','status','dept','delayDays','priority'];
                 if(vk&&viewData[vk]?.connected&&viewData[vk]?.data?.length>0){
-                    const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType']);
+                    const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author']);
                     const dk=Object.keys(items[0]).filter(k=>!skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k));
                     if(dk.length>0)cols=dk;
                 }
@@ -1558,7 +1457,7 @@ function renderDashboardCharts(){
 }
 
 function renderDashboard(){
-    const DEPT_KEY_TO_NAME={engineering:'Engineering',procurement:'Procurement',qaqc:'QA/QC',hse:'HSE'};
+    const DEPT_KEY_TO_NAME={substructure:'Substructure',superstructure:'Superstructure',calculations:'Calculations',methodstatement:'Method Statement',procurement:'Procurement'};
     const allowedDeptNames=myPerms==='ALL'?Object.values(DEPT_KEY_TO_NAME):Object.keys(DEPT_KEY_TO_NAME).filter(k=>getMyAccess(k)!=='none').map(k=>DEPT_KEY_TO_NAME[k]);
     const connectedViews=VIEW_KEYS.filter(v=>viewData[v]?.connected&&viewData[v]?.data?.length>0&&(myPerms==='ALL'||getMyAccess(viewToDeptId(v))!=='none'));
     let d;
@@ -1568,7 +1467,6 @@ function renderDashboard(){
     }else{
         d=[...DATA].filter(x=>allowedDeptNames.includes(x.dept));
     }
-    d=d.filter(x=>x.dept!=='Construction');
     if(d.length===0){
         document.getElementById('content').innerHTML=`
           <div class="empty-state"><div class="empty-icon">📭</div><p>No data loaded. <br><button class="btn btn-primary" onclick="openSettings()" style="margin-top:12px;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0078D4;color:white">Configure Data Source</button></p></div>`;
@@ -1577,10 +1475,32 @@ function renderDashboard(){
     window._kpiCache=[];
     const pushKpi=(title,items,cols,wbs)=>{const idx=window._kpiCache.length;window._kpiCache.push({title,items,cols:cols||['proj','prog','status','dept','delayDays','priority'],wbs});return idx;};
     const total=d.length;
-    const notStarted=d.filter(x=>x.status==='Not Started'||x.status==='Not Set').length;
-    const inProg=d.filter(x=>x.status==='In Progress'||x.status==='Under Review').length;
-    const completed=d.filter(x=>x.status==='Completed').length;
-    const overdue=d.filter(isOverdue).length;
+    const codeStatus=x=>{
+      const d=x.dept||'';
+      if(d==='Substructure'||d==='Superstructure'){
+        let code='';
+        const codeFields=['rev04','rev03','rev02','rev01','rev00','rev','finalCode','Final Code','Final_x0020_Code','Status Code','Status_x0020_Code','STATUS CODE','statusCode'];
+        for(const f of codeFields){const v=x[f];if(v&&String(v).trim()){code=String(v).trim();break;}}
+        if(!code){const skip=new Set(['dept','status','priority','proj','id','Title','prog','assigned','remarks','phase','part','eng','checker','appr','subDate','clientReview','apprDate','ifcDate','engDisc','spec','calc','rfi','tq','due','pStart','pFinish','aStart','aFinish','delayDays','desStatus','actId','actName','cat']);for(const k of Object.keys(x)){if(skip.has(k))continue;const v=String(x[k]).trim();if(v.length===1&&/^[A-Z]$/i.test(v)){code=v;break;}}}
+        const c=code.toUpperCase();
+        if(!c)return'Not Started';
+        if(c==='A'||c==='B'||c==='E')return'Completed';
+        return'In Progress';
+      }
+      if(d==='Procurement'){
+        const ds=(x.deliveryStatus||x['Actual Delivery Status']||x['ACTUAL DELIVERY STATUS']||x['ACTUAL_x0020_DELIVERY_x0020_STATUS']||'').toLowerCase();
+        if(!ds)return'Not Started';
+        if(/done|deliver|receiv|complet|site.required/i.test(ds)&&!/pend|overdue|part/i.test(ds))return'Completed';
+        return'In Progress';
+      }
+      const c=(x.finalCode||x['Final Code']||x['Final_x0020_Code']||x['Status Code']||x['Status_x0020_Code']||x.rev||'').toUpperCase();
+      if(!c)return'Not Started';
+      if(c==='A'||c==='B'||c==='E')return'Completed';
+      return'In Progress';
+    };
+    const notStarted=d.filter(x=>codeStatus(x)==='Not Started').length;
+    const inProg=d.filter(x=>codeStatus(x)==='In Progress').length;
+    const completed=d.filter(x=>codeStatus(x)==='Completed').length;
     const avgProg=total?Math.round(d.reduce((s,x)=>s+(Number(x.prog||x['CompletionPct']||0)),0)/total):0;
     const compRate=total?Math.round(completed/total*100):0;
     const avgDelay=Math.round(d.reduce((s,x)=>s+Math.max(0,calcDelay(x)),0)/Math.max(1,total));
@@ -1588,52 +1508,31 @@ function renderDashboard(){
     const totalActual=d.reduce((s,x)=>s+(Number(x.actual||x['ActualCost']||x['Actual Cost']||0)),0);
     const variance=totalBudget-totalActual;
     const ciTotal=pushKpi('All Items',d,null,true);
-    const ciNotStarted=pushKpi('Not Started',d.filter(x=>x.status==='Not Started'||x.status==='Not Set'),null,true);
-    const ciInProg=pushKpi('In Progress',d.filter(x=>x.status==='In Progress'||x.status==='Under Review'),null,true);
-    const ciCompleted=pushKpi('Completed',d.filter(x=>x.status==='Completed'),null,true);
-    const ciOverdue=pushKpi('Overdue Items',d.filter(isOverdue),null,true);
+    const ciNotStarted=pushKpi('Not Started',d.filter(x=>codeStatus(x)==='Not Started'),null,true);
+    const ciInProg=pushKpi('In Progress',d.filter(x=>codeStatus(x)==='In Progress'),null,true);
+    const ciCompleted=pushKpi('Completed',d.filter(x=>codeStatus(x)==='Completed'),null,true);
     const statusData={};d.forEach(x=>{const s=x.status||'Not Set';statusData[s]=(statusData[s]||0)+1});
     const deptData={};d.forEach(x=>{const dp=x.dept||'Unknown';deptData[dp]=(deptData[dp]||0)+1});
     const depts=[
-        {key:'Engineering',icon:'📐',color:'#4C5D71'},
-        {key:'Procurement',icon:'📦',color:'#ED7D31'},
-        {key:'QA/QC',icon:'✅',color:'#0078D4'},
-        {key:'HSE',icon:'🛡️',color:'#D92C2C'}
+        {key:'Substructure',icon:'🏗️',color:'#4C5D71'},
+        {key:'Superstructure',icon:'🏢',color:'#00B7C3'},
+        {key:'Calculations',icon:'🧮',color:'#8764B8'},
+        {key:'Method Statement',icon:'📋',color:'#0078D4'},
+        {key:'Procurement',icon:'📦',color:'#ED7D31'}
     ].filter(dp=>allowedDeptNames.includes(dp.key));
     const deptOptions=depts.map(dp=>'<option>'+dp.key+'</option>').join('');
-    let deptKpis='';
-    depts.forEach(dp=>{
+    const deptInfo=depts.map(dp=>{
         const vk=VIEW_KEYS.find(k=>VIEWS[k].title===dp.key||VIEWS[k].dept===dp.key);
         const vd=vk?viewData[vk]:null;
         const useViewData=vd&&vd.connected&&vd.data.length>0;
         const items=useViewData?vd.data:d.filter(x=>x.dept===dp.key);
-        const t=items.length;
-        if(t===0){deptKpis+=`<div class="kpi-card" style="opacity:.5;grid-column:span 1"><div class="kpi-accent" style="background:${dp.color}"></div><div class="kpi-icon">${dp.icon}</div><div class="kpi-label">${dp.key}</div><div class="kpi-value" style="font-size:18px">0</div><div class="kpi-sub">No items</div></div>`;return;}
-        const ns=items.filter(x=>x.status==='Not Started'||x.status==='Not Set').length;
-        const ip=items.filter(x=>x.status==='In Progress'||x.status==='Under Review').length;
-        const c=items.filter(x=>x.status==='Completed').length;
-        const od=items.filter(isOverdue).length;
-        const ap=t?Math.round(items.reduce((s,x)=>s+(x.prog||0),0)/t):0;
-        let deptCols=VIEWS[vk]?.cols||['proj','prog','status','delayDays'];
+        let cols=VIEWS[vk]?.cols||['proj','prog','status','delayDays'];
         if(useViewData&&items.length>0){
-            const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType']);
-            const dk=Object.keys(items[0]).filter(k=>!skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k));
-            if(dk.length>0)deptCols=dk;
+            const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author']);
+            const dataKeys=Object.keys(items[0]).filter(k=>!skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k));
+            if(dataKeys.length>0)cols=dataKeys;
         }
-        const ci=pushKpi(dp.key,items,deptCols,false);
-        deptKpis+=`<div class="kpi-card" onclick="showKpiModalFromCache(${ci})" title="Click to view ${dp.key} details" style="grid-column:span 1;cursor:pointer">
-          <div class="kpi-accent" style="background:${dp.color}"></div>
-          <div class="kpi-icon">${dp.icon}</div>
-          <div class="kpi-label">${dp.key}</div>
-          <div class="kpi-value" style="font-size:18px">${t}</div>
-          <div class="kpi-sub">
-            <span style="color:var(--text-secondary)">NS:</span>${ns}
-            <span style="color:var(--text-secondary);margin-left:6px">IP:</span>${ip}
-            <span style="color:var(--green);margin-left:6px">C:</span>${c}
-            <span style="color:var(--red);margin-left:6px">OD:</span>${od}
-          </div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${ap}%;background:${dp.color}"></div></div>
-        </div>`;
+        return{...dp,t:items.length,items,ci:pushKpi(dp.key,items,cols,false)};
     });
     document.getElementById('content').innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
@@ -1647,12 +1546,69 @@ function renderDashboard(){
         <div class="kpi-label">Total Items</div>
         <div class="kpi-value">${total}</div>
         <div class="kpi-sub">
-          <span style="color:var(--text-secondary)">NS:</span>${notStarted}
-          <span style="color:var(--text-secondary);margin-left:8px">IP:</span>${inProg}
-          <span style="color:var(--green);margin-left:8px">C:</span>${completed}
-          <span style="color:var(--red);margin-left:8px">OD:</span>${overdue}
+          <span style="color:var(--text-secondary)">NS:</span>${notStarted} (${total?Math.round(notStarted/total*100):0}%)
+          <span style="color:var(--text-secondary);margin-left:8px">IP:</span>${inProg} (${total?Math.round(inProg/total*100):0}%)
+          <span style="color:var(--green);margin-left:8px">C:</span>${completed} (${total?Math.round(completed/total*100):0}%)
         </div>
       </div>
+      ${(()=>{
+        function statN(n,t){return n+' ('+(t?Math.round(n/t*100):0)+'%)'}
+        function statRow(items){
+          const ns=items.filter(x=>codeStatus(x)==='Not Started').length;
+          const ip=items.filter(x=>codeStatus(x)==='In Progress').length;
+          const c=items.filter(x=>codeStatus(x)==='Completed').length;
+          const tt=items.length;
+          return '<span style="color:var(--text-secondary)">NS:</span>'+statN(ns,tt)+' <span style="color:var(--text-secondary);margin-left:6px">IP:</span>'+statN(ip,tt)+' <span style="color:var(--green);margin-left:6px">C:</span>'+statN(c,tt);
+        }
+        const sub=deptInfo.find(d=>d.key==='Substructure');
+        const sup=deptInfo.find(d=>d.key==='Superstructure');
+        const sdTotal=(sub?.t||0)+(sup?.t||0);
+        const others=deptInfo.filter(d=>d.key!=='Substructure'&&d.key!=='Superstructure');
+        let html='';
+        if(sdTotal>0){
+          const sdItems=[].concat(sub?sub.items:[],sup?sup.items:[]);
+          const sdRow=statRow(sdItems);
+          const subRow=sub?statRow(sub.items):'';
+          const supRow=sup?statRow(sup.items):'';
+          let debugHtml='';
+          if(sub?.items?.[0]&&!window._sdDebugged){
+            window._sdDebugged=true;
+            const f=sub.items[0];
+            const cs=codeStatus(f);
+            const pairs=Object.keys(f).sort().filter(k=>{const v=String(f[k]).trim();return v.length>0&&!k.startsWith('@')&&!/^(Modified|Created|Editor|Author|ID|id|Title|FileRef|FileLeafRef|UniqueId|GUID|OData|odata|_UIVersion)/.test(k);}).map(k=>k+': '+JSON.stringify(String(f[k]).substring(0,40))).join('<br>');
+            debugHtml='<div style="font-size:9px;margin-bottom:6px;padding:4px;background:#fff3cd;border-radius:4px;max-height:120px;overflow:auto"><b>🔍 Sub 1st item · codeStatus='+cs+'</b><br>'+pairs+'</div>';
+          }
+          html+=`<div class="kpi-card" style="cursor:default;grid-column:span 2">
+            <div class="kpi-accent" style="background:linear-gradient(90deg,#4C5D71,#00B7C3)"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:18px">📐</span>
+              <span style="font-weight:600;font-size:14px;color:var(--text-primary)">Shop Drawing</span>
+              <span style="margin-left:auto;font-size:22px;font-weight:700">${sdTotal}</span>
+            </div>
+            <div style="font-size:11px;margin-bottom:6px">${sdRow}</div>
+            ${debugHtml}
+            <div style="display:flex;gap:8px">
+              ${sub&&sub.t>0?`<div onclick="showKpiModalFromCache(${sub.ci})" style="flex:1;padding:10px;cursor:pointer;background:var(--gray-light);border-radius:8px;border:1px solid var(--gray-border)">
+                <div style="font-size:11px;font-weight:600;color:#4C5D71;margin-bottom:4px">🏗️ Substructure · ${sub.t}</div>
+                <div style="font-size:10px">${subRow}</div>
+              </div>`:''}
+              ${sup&&sup.t>0?`<div onclick="showKpiModalFromCache(${sup.ci})" style="flex:1;padding:10px;cursor:pointer;background:var(--gray-light);border-radius:8px;border:1px solid var(--gray-border)">
+                <div style="font-size:11px;font-weight:600;color:#00B7C3;margin-bottom:4px">🏢 Superstructure · ${sup.t}</div>
+                <div style="font-size:10px">${supRow}</div>
+              </div>`:''}
+            </div>
+          </div>`;
+        }
+        return html+others.filter(d=>d.t>0).map(d=>`
+        <div class="kpi-card" onclick="showKpiModalFromCache(${d.ci})" style="cursor:pointer">
+          <div class="kpi-accent" style="background:${d.color}"></div>
+          <div class="kpi-icon">${d.icon}</div>
+          <div class="kpi-label">${d.key}</div>
+          <div class="kpi-value">${d.t}</div>
+          <div class="kpi-sub" style="font-size:11px">${statRow(d.items)}</div>
+        </div>`).join('')})()}
+    </div>
+    <div class="kpi-grid">
       <div class="kpi-card" onclick="showKpiModalFromCache(${ciNotStarted})" style="cursor:pointer">
         <div class="kpi-accent" style="background:#8C8C8C"></div><div class="kpi-icon">⏸️</div>
         <div class="kpi-label">Not Started</div><div class="kpi-value">${notStarted}</div>
@@ -1668,26 +1624,122 @@ function renderDashboard(){
         <div class="kpi-label">Completed</div><div class="kpi-value">${completed}</div>
         <div class="kpi-sub">${compRate}% completion rate</div>
       </div>
-      <div class="kpi-card" onclick="showKpiModalFromCache(${ciOverdue})" style="cursor:pointer">
-        <div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">⚠️</div>
-        <div class="kpi-label">Overdue</div><div class="kpi-value">${overdue}</div>
-        <div class="kpi-sub">Avg delay ${avgDelay}d</div>
-      </div>
     </div>
-    <h3 style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:0 0 12px;text-transform:uppercase;letter-spacing:.5px">📋 Department Overview</h3>
-    <div class="kpi-grid">${deptKpis}</div>
     ${(()=>{
-        let teamHtml='';
-        const allowedViews=connectedViews.filter(v=>myPerms==='ALL'||getMyAccess(viewToDeptId(v))!=='none');
-        allowedViews.forEach(v=>{
-            const items=viewData[v]?.data||[];
-            const cols=VIEW_PERSON_COLS[v]||['assigned'];
-            const team=getTeam(items,cols);
-            if(team.length>0){
-                teamHtml+=`<div style="margin:4px 0 8px"><span style="font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px">${VIEWS[v].title} Team</span>${renderTeam(team,true)}</div>`;
+        let deptHtml='';
+        depts.forEach(dp=>{
+            const vk=VIEW_KEYS.find(k=>VIEWS[k].title===dp.key||VIEWS[k].dept===dp.key);
+            if(!vk)return;
+            const vd=vk?viewData[vk]:null;
+            const useViewData=vd&&vd.connected&&vd.data.length>0;
+            const items=useViewData?vd.data:d.filter(x=>x.dept===dp.key);
+            const t=items.length; if(t===0)return;
+            const ns=items.filter(x=>x.status==='Not Started'||x.status==='Not Set').length;
+            const ip=items.filter(x=>x.status==='In Progress'||x.status==='Under Review').length;
+            const c=items.filter(x=>x.status==='Completed').length;
+            const od=items.filter(isOverdue).length;
+            const ap=t?Math.round(items.reduce((s,x)=>s+(x.prog||0),0)/t):0;
+            const ovr=t?Math.round(od/t*100):0;
+            let deptCols=VIEWS[vk]?.cols||['proj','prog','status','delayDays'];
+            if(useViewData&&items.length>0){
+                const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author']);
+                const dk=Object.keys(items[0]).filter(k=>!skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k));
+                if(dk.length>0)deptCols=dk;
             }
+            function dc(v,pct,invert){
+                if(pct==null&&v==null)return dp.color;
+                const p=pct??(t?v/t*100:0);
+                if(invert){if(p<=20)return'#107C10';if(p<=50)return'#ED7D31';return'#D92C2C';}
+                if(p>=70)return'#107C10';if(p>=40)return'#ED7D31';return'#D92C2C';
+            }
+            function dtr(g,tot){if(!tot)return'';const r=g/tot;return r>=0.7?'ON TRACK':r>=0.4?'FAIR':'BEHIND';}
+            let kpis='';
+            if(vk==='substructure'||vk==='superstructure'){
+                const revFields=[{key:'rev04',cols:['REV 04 (OUT MDH)','REV 04']},{key:'rev03',cols:['REV 03 (OUT MDH)']},{key:'rev02',cols:['REV 02 OUT(MDH)','REV 02 IN']},{key:'rev01',cols:['REV 01 OUT(MDH)','REV 01  IN']},{key:'rev00',cols:['REV 00 (OUT MDH)','REV 00  IN']}];
+                const revCounts={rev04:0,rev03:0,rev02:0,rev01:0,rev00:0};
+                items.forEach(item=>{for(const rf of revFields){const colName=rf.cols.find(c=>item[c]!==undefined&&item[c]!==null&&item[c]!=='');const value=colName?item[colName]:item[rf.key];if(value!==undefined&&value!==null&&value!==''){revCounts[rf.key]++;break;}}});
+                const disciplines=new Set(items.map(x=>x.engDisc||x['Discipline']||'')).size;
+                const phases=new Set(items.map(x=>x.phase||x['ProjectPhase']||x['Phase']||'')).size;
+                const parts=new Set(items.map(x=>x.part||x['Part']||'')).size;
+                const ci=window._kpiCache.length;window._kpiCache.push({title:dp.key,items,cols:deptCols});
+                kpis=
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${ci})" style="cursor:pointer"><div class="kpi-accent" style="background:#4C5D71"></div><div class="kpi-icon">📐</div><div class="kpi-label">Total</div><div class="kpi-value">${t}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Overdue',items:items.filter(isOverdue),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">⏰</div><div class="kpi-label">Overdue</div><div class="kpi-value">${od}</div><div class="kpi-sub">${ovr}%</div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">4️⃣</div><div class="kpi-label">Rev 04</div><div class="kpi-value">${revCounts.rev04}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?revCounts.rev04/t*100:0}%;background:#D92C2C"></div></div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#8A8886"></div><div class="kpi-icon">⬜</div><div class="kpi-label">Rev 00</div><div class="kpi-value">${revCounts.rev00}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?revCounts.rev00/t*100:0}%;background:#8A8886"></div></div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#00B7C3"></div><div class="kpi-icon">1️⃣</div><div class="kpi-label">Rev 01</div><div class="kpi-value">${revCounts.rev01}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?revCounts.rev01/t*100:0}%;background:#00B7C3"></div></div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#ED7D31"></div><div class="kpi-icon">2️⃣</div><div class="kpi-label">Rev 02</div><div class="kpi-value">${revCounts.rev02}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?revCounts.rev02/t*100:0}%;background:#ED7D31"></div></div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#8764B8"></div><div class="kpi-icon">3️⃣</div><div class="kpi-label">Rev 03</div><div class="kpi-value">${revCounts.rev03}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?revCounts.rev03/t*100:0}%;background:#8764B8"></div></div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#0078D4"></div><div class="kpi-icon">🏷️</div><div class="kpi-label">Disciplines</div><div class="kpi-value">${disciplines}</div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">📅</div><div class="kpi-label">Phases</div><div class="kpi-value">${phases}</div></div>`+
+                    `<div class="kpi-card" style=""><div class="kpi-accent" style="background:#4C5D71"></div><div class="kpi-icon">📁</div><div class="kpi-label">Parts</div><div class="kpi-value">${parts}</div></div>`;
+            }else if(vk==='procurement'){
+                function poIsIssued(x){const ad=x.actualPoDate||x['Actual PO']||x['Actual PO DATE']||x['ACTUAL PO DATE']||x['ACTUAL_x0020_PO_x0020_DATE']||'';if(ad&&ad!=='N/A')return true;const ps=x['Actual PO Status']||x['ACTUAL PO Status']||x['ACTUAL PO STATUS']||x['ACTUAL_x0020_PO_x0020_Status']||x['ACTUAL_x0020_PO_x0020_STATUS']||'';if(typeof ps==='string'&&ps.toLowerCase()==='done')return true;const pq=x.pqStatus||x['PQ  Status']||x['PQ_x0020__x0020_Status']||x['PQ_x0020_Status']||'';if(typeof pq==='string'&&pq.toLowerCase()==='done')return true;return x.poRef&&x.poRef!==''&&x.poRef!=='N/A';}
+                const poIssued=items.filter(poIsIssued).length,poPending=t-poIssued;
+                function delIsDone(x){const ds=(x.deliveryStatus||x['Actual Delivery Status']||x['ACTUAL DELIVERY STATUS']||x['ACTUAL_x0020_DELIVERY_x0020_STATUS']||'').toLowerCase();return ds==='done'||ds==='as site required'||/deliver|receiv|complet/i.test(ds)&&!/pend|overdue|part/i.test(ds);}
+                const delDelivered=items.filter(delIsDone).length,delPending=t-delDelivered;
+                function isLongLead(x){const v=x.leadTime||x['Lead Time']||x['PROCUREMENT LEAD TIME']||x['PROCUREMENT_x0020_LEAD_x0020_TIME']||'';return Number(v)>60||(typeof v==='string'&&v.toLowerCase()==='lli');}
+                const longLead=items.filter(isLongLead).length;
+                function isPqApproved(x){const s=x.pqStatus||x['PQ  Status']||x['PQ_x0020__x0020_Status']||x['PQ_x0020_Status']||'';return /approv|accept|pass/i.test(s)||/^[be]$/i.test(s);}
+                const pqApproved=items.filter(isPqApproved).length;
+                function getMatStatus(x){return (x.matSubStatus||x['Material Submitta STATUS']||x['Material Submittal Status']||x['Material Submitta Status']||x['Material_x0020_Submitta_x0020_STATUS']||'').toLowerCase();}
+                const matOpen=items.filter(x=>{const m=getMatStatus(x);return m==='mar open'||m==='mar_open';}).length;
+                const matSubmitted=items.filter(x=>{const m=getMatStatus(x);return m&&m!=='n/a';}).length;
+                const matApproved=items.filter(x=>{const m=getMatStatus(x);return m&&m!=='n/a'&&m!=='mar open'&&m!=='mar_open';}).length;
+                function pc(v){return t?Math.round(v/t*100):0;}
+                function sc(pct,invert){if(invert){if(pct<=20)return'#107C10';if(pct<=50)return'#ED7D31';return'#D92C2C';}if(pct>=70)return'#107C10';if(pct>=40)return'#ED7D31';return'#D92C2C';}
+                kpis=
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#4C5D71"></div><div class="kpi-icon">📦</div><div class="kpi-label">Total Items</div><div class="kpi-value">${t}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'PO Issued',items:items.filter(poIsIssued),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(poIssued))}"></div><div class="kpi-icon">📄</div><div class="kpi-label">PO Issued</div><div class="kpi-value">${poIssued}</div><div class="kpi-sub">${dtr(poIssued,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(poIssued)}%;background:${sc(pc(poIssued))}"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'PO Pending',items:items.filter(x=>!poIsIssued(x)),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(poPending),true)}"></div><div class="kpi-icon">📋</div><div class="kpi-label">PO Pending</div><div class="kpi-value">${poPending}</div><div class="kpi-sub">${dtr(t-poPending,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(poPending)}%;background:${sc(pc(poPending),true)}"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Delivery Completed',items:items.filter(delIsDone),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(delDelivered))}"></div><div class="kpi-icon">✅</div><div class="kpi-label">Del. Completed</div><div class="kpi-value">${delDelivered}</div><div class="kpi-sub">${dtr(delDelivered,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(delDelivered)}%;background:${sc(pc(delDelivered))}"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Deliveries Pending',items:items.filter(x=>!delIsDone(x)),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(delPending),true)}"></div><div class="kpi-icon">⏳</div><div class="kpi-label">Del. Pending</div><div class="kpi-value">${delPending}</div><div class="kpi-sub">${dtr(t-delPending,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(delPending)}%;background:${sc(pc(delPending),true)}"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Long Lead Items',items:items.filter(isLongLead),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(longLead),true)}"></div><div class="kpi-icon">⏱️</div><div class="kpi-label">Long Lead</div><div class="kpi-value">${longLead}</div><div class="kpi-sub">${dtr(t-longLead,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(longLead)}%;background:${sc(pc(longLead),true)}"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'PQ Approved',items:items.filter(isPqApproved),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(pqApproved))}"></div><div class="kpi-icon">📋</div><div class="kpi-label">PQ Approved</div><div class="kpi-value">${pqApproved}</div><div class="kpi-sub">${dtr(pqApproved,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(pqApproved)}%;background:${sc(pc(pqApproved))}"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'MAT Submitted',items:items.filter(x=>{const m=getMatStatus(x);return m&&m!=='n/a';}),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#0F6B3A"></div><div class="kpi-icon">📎</div><div class="kpi-label">MAT Submitted</div><div class="kpi-value">${matSubmitted}</div><div class="kpi-sub">${dtr(matSubmitted,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(matSubmitted)}%;background:#0F6B3A"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'MAT Approved',items:items.filter(x=>{const m=getMatStatus(x);return m&&m!=='n/a'&&m!=='mar open'&&m!=='mar_open';}),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#0F6B3A"></div><div class="kpi-icon">✔️</div><div class="kpi-label">MAT Approved</div><div class="kpi-value">${matApproved}</div><div class="kpi-sub">${dtr(matApproved,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(matApproved)}%;background:#0F6B3A"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Open MAR',items:items.filter(x=>{const m=getMatStatus(x);return m==='mar open'||m==='mar_open';}),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:${sc(pc(matOpen),true)}"></div><div class="kpi-icon">🔄</div><div class="kpi-label">Open MAR</div><div class="kpi-value">${matOpen}</div><div class="kpi-sub">${dtr(t-matOpen,t)}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pc(matOpen)}%;background:${sc(pc(matOpen),true)}"></div></div></div>`;
+            }else if(vk==='calculations'){
+                const approved=items.filter(x=>x.status==='Approved'||x.status==='Completed').length;
+                const inReview=items.filter(x=>x.status==='Under Review'||x.status==='In Review').length;
+                const pending=items.filter(x=>x.status==='Pending'||x.status==='Not Started').length;
+                kpis=
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#4C5D71"></div><div class="kpi-icon">🧮</div><div class="kpi-label">Total</div><div class="kpi-value">${t}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Approved',items:items.filter(x=>x.status==='Approved'||x.status==='Completed'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#107C10"></div><div class="kpi-icon">✅</div><div class="kpi-label">Approved</div><div class="kpi-value">${approved}</div><div class="kpi-sub">${t?Math.round(approved/t*100):0}%</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?approved/t*100:0}%;background:#107C10"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'In Review',items:items.filter(x=>x.status==='Under Review'||x.status==='In Review'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#0078D4"></div><div class="kpi-icon">🔍</div><div class="kpi-label">In Review</div><div class="kpi-value">${inReview}</div><div class="kpi-sub">${t?Math.round(inReview/t*100):0}%</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?inReview/t*100:0}%;background:#0078D4"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Pending',items:items.filter(x=>x.status==='Pending'||x.status==='Not Started'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#ED7D31"></div><div class="kpi-icon">⏳</div><div class="kpi-label">Pending</div><div class="kpi-value">${pending}</div><div class="kpi-sub">${t?Math.round(pending/t*100):0}%</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?pending/t*100:0}%;background:#ED7D31"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Overdue',items:items.filter(isOverdue),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">⏰</div><div class="kpi-label">Overdue</div><div class="kpi-value">${od}</div><div class="kpi-sub">${ovr}%</div></div>`;
+            }else if(vk==='methodstatement'){
+                const approved=items.filter(x=>x.status==='Approved As Submitted'||x.status==='Approved As Noted').length;
+                const underReview=items.filter(x=>x.status==='Under Review').length;
+                const resubmit=items.filter(x=>x.status==='Revise & Resubmit').length;
+                const rejected=items.filter(x=>x.status==='Rejected').length;
+                const forInfo=items.filter(x=>x.status==='For Information').length;
+                const appRate=t?Math.round(approved/t*100):0;
+                const disciplines=new Set(items.map(x=>x.discipline||'')).size;
+                kpis=
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#4C5D71"></div><div class="kpi-icon">📄</div><div class="kpi-label">Total MS</div><div class="kpi-value">${t}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Approved',items:items.filter(x=>x.status==='Approved As Submitted'||x.status==='Approved As Noted'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#107C10"></div><div class="kpi-icon">✅</div><div class="kpi-label">Approved</div><div class="kpi-value">${approved}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${appRate}%;background:#107C10"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Under Review',items:items.filter(x=>x.status==='Under Review'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#0078D4"></div><div class="kpi-icon">🔍</div><div class="kpi-label">Under Review</div><div class="kpi-value">${underReview}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Revise & Resubmit',items:items.filter(x=>x.status==='Revise & Resubmit'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#ED7D31"></div><div class="kpi-icon">🔄</div><div class="kpi-label">Revise & Resub.</div><div class="kpi-value">${resubmit}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Rejected',items:items.filter(x=>x.status==='Rejected'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">❌</div><div class="kpi-label">Rejected</div><div class="kpi-value">${rejected}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'For Information',items:items.filter(x=>x.status==='For Information'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#8A8886"></div><div class="kpi-icon">ℹ️</div><div class="kpi-label">For Info</div><div class="kpi-value">${forInfo}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Overdue',items:items.filter(isOverdue),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">⏰</div><div class="kpi-label">Overdue</div><div class="kpi-value">${od}</div></div>`+
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#00B7C3"></div><div class="kpi-icon">📊</div><div class="kpi-label">Approval Rate</div><div class="kpi-value">${appRate}%</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${appRate}%;background:#00B7C3"></div></div></div>`+
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#8764B8"></div><div class="kpi-icon">🏷️</div><div class="kpi-label">Disciplines</div><div class="kpi-value">${disciplines}</div></div>`;
+            }else{
+                kpis=
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#4C5D71"></div><div class="kpi-icon">📊</div><div class="kpi-label">Total</div><div class="kpi-value">${t}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Completed',items:items.filter(x=>x.status==='Completed'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#107C10"></div><div class="kpi-icon">📈</div><div class="kpi-label">Completed</div><div class="kpi-value">${c}</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${t?c/t*100:0}%;background:#107C10"></div></div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'In Progress',items:items.filter(x=>x.status==='In Progress'||x.status==='Under Review'),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#00B7C3"></div><div class="kpi-icon">🔄</div><div class="kpi-label">In Progress</div><div class="kpi-value">${ip}</div></div>`+
+                    `<div class="kpi-card" onclick="showKpiModalFromCache(${window._kpiCache.push({title:'Overdue',items:items.filter(isOverdue),cols:deptCols})-1})" style="cursor:pointer"><div class="kpi-accent" style="background:#D92C2C"></div><div class="kpi-icon">⏰</div><div class="kpi-label">Overdue</div><div class="kpi-value">${od}</div><div class="kpi-sub">${ovr}%</div></div>`+
+                    `<div class="kpi-card"><div class="kpi-accent" style="background:#8764B8"></div><div class="kpi-icon">📊</div><div class="kpi-label">Avg Progress</div><div class="kpi-value">${ap}%</div><div class="kpi-bar"><div class="kpi-bar-fill" style="width:${ap}%;background:#8764B8"></div></div></div>`;
+            }
+            const team=getTeam(items,VIEW_PERSON_COLS[vk]||['assigned']);
+            const teamHtml=team.length>0?`<div style="margin:8px 0 0">${renderTeam(team,true)}</div>`:'';
+            deptHtml+=`<div style="margin-top:18px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">${dp.icon}</span><h3 style="margin:0;font-size:14px;font-weight:600;color:var(--text-primary);text-transform:uppercase;letter-spacing:.5px">${dp.key}</h3><span style="font-size:11px;color:var(--text-secondary);background:var(--gray-light);padding:1px 8px;border-radius:10px">${t} items</span></div><div class="kpi-grid">${kpis}</div>${teamHtml}</div>`;
         });
-        return teamHtml;
+        return deptHtml;
     })()}
     <div class="charts-row">
       <div class="chart-card">
@@ -1713,29 +1765,8 @@ function renderDashboard(){
         </div>
         <canvas id="chart-dept"></canvas>
       </div>
-    </div>
-    <div class="table-wrap">
-      <div class="table-toolbar">
-        <span class="view-label">Executive Dashboard</span>
-        <span class="view-badge">${total} items</span>
-        <span style="flex:1"></span>
-        <div class="filter-group">
-          <select id="filter-dept" onchange="renderTable()">
-            <option value="">All Departments</option>
-            ${deptOptions}
-          </select>
-          <select id="filter-status" onchange="renderTable()">
-            <option value="">All Statuses</option>
-            <option>Not Started</option><option>In Progress</option><option>Under Review</option>
-            <option>Waiting Approval</option><option>Completed</option><option>Delayed</option>
-            <option>On Hold</option><option>Cancelled</option>
-          </select>
-        </div>
-      </div>
-      <div class="table-scroll"><table id="data-table"><tbody id="table-body"></tbody></table></div>
     </div>`;
     renderDashboardCharts();
-    renderTable();
 }
 
 function showKpiModal(title, items, columns){
@@ -1777,7 +1808,7 @@ function showKpiWbsModal(title, allItems){
         const vk=VIEW_KEYS.find(k=>VIEWS[k].title===dept||VIEWS[k].dept===dept);
         let cols=(vk&&VIEWS[vk]?.cols)||['proj','prog','status','dept','delayDays','priority'];
         if(vk&&viewData[vk]?.connected&&viewData[vk]?.data?.length>0){
-            const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType']);
+            const skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author']);
             const dk=Object.keys(items[0]).filter(k=>!skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k));
             if(dk.length>0)cols=dk;
         }
@@ -1835,10 +1866,25 @@ function renderTable(){
 
     let cols;
     if(currentView!=='dashboard'&&d.length>0){
-        const skipKeys = new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType']);
+        const skipKeys = new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author']);
         // Use actual SharePoint keys when connected, but exclude all alias short names
         const dataKeys=Object.keys(d[0]).filter(k=>!skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k));
         cols=dataKeys.length>0?dataKeys:(VIEWS[currentView]?.cols||[]);
+        // Sort calculations columns to match desired order
+        if(currentView==='calculations'){
+            const calcOrder=['S.No','TYPE','SHEET NAME','PHASE','BUILDING/PART','DISCIPLINE','EXPECTED SUBMISSION DATE','DRAWING STATUS'];
+            const orderUpper=calcOrder.map(o=>o.toUpperCase());
+            const known=[],unknown=[];
+            cols.forEach(c=>{
+                const dn=COL_LABELS[c]||c;
+                const dnUpper=dn.replace(/[_\s]+/g,' ').trim().toUpperCase();
+                const idx=orderUpper.indexOf(dnUpper);
+                if(idx>=0)known.push({c,idx});
+                else unknown.push(c);
+            });
+            known.sort((a,b)=>a.idx-b.idx);
+            cols=[...known.map(k=>k.c),...unknown];
+        }
     }else{
         cols=(currentView==='dashboard'?VIEWS.dashboard:VIEWS[currentView]).cols;
     }
@@ -1852,7 +1898,7 @@ function renderTable(){
     }
 
     let html='<thead><tr>';
-    const firstColLabel=currentView==='procurement'?'S. No':currentView==='construction'?'Activity ID':'Project Name';
+    const firstColLabel=currentView==='procurement'?'S. No':'Project Name';
     html+=`<th onclick="sortBy('proj')" class="${sortCol==='proj'?'sorted':''}">${firstColLabel}<span class="sort-arrow">${arrow('proj')}</span></th>`;
     cols.forEach(c=>{if(c!=='proj')html+=`<th onclick="sortBy('${c}')" class="${sortCol===c?'sorted':''}">${COL_LABELS[c]||c}<span class="sort-arrow">${arrow(c)}</span></th>`;});
     html+='</tr></thead><tbody>';
@@ -1862,9 +1908,9 @@ function renderTable(){
         if(currentView==='procurement'){
             firstCell=i+1;
             clickLabel='S. No: '+(i+1);
-        }else if(currentView==='engineering'){
-            firstCell=item.MSL||'MSL';
-            clickLabel='MSL: '+(item.MSL||'MSL');
+        }else if(currentView==='substructure'||currentView==='superstructure'){
+            firstCell=item.dwgNo||item['Drawing_x0020_Number']||item['Drawing Number']||'—';
+            clickLabel='Drawing: '+(item.dwgNo||item['Drawing_x0020_Number']||'—');
         }else{
             firstCell=item.proj||item.Title||'';
             clickLabel='Project: '+firstCell;
@@ -1912,7 +1958,7 @@ function renderDeptView(view){
     const useViewData=vd&&vd.connected&&vd.data.length>0;
     const items=useViewData?vd.data:DATA.filter(x=>x.dept===v.dept);
     // Compute view columns (same logic as renderTable)
-    const _skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType']);
+    const _skipKeys=new Set(['dept','priority','proj','status','Title','Modified','Created','EditorLookupId','AuthorLookupId','ID','id','ContentType','_UIVersionString','Attachments','Edit','LinkTitleNoMenu','LinkTitle','ItemChildCount','FolderChildCount','_ComplianceFlags','_ComplianceTag','_ComplianceTagWrittenTime','_ComplianceTagUserId','AppAuthorLookupId','AppEditorLookupId','@odata.etag','FileSystemObjectType','ServerUrl','EncodedAbsUrl','BaseName','FileRef','FileLeafRef','UniqueId','ProgId','CheckoutUserId','CheckoutUser','CheckedOutUserId','CheckedOutUser','HasCopyDestinations','CopySource','OData__UIVersionString','UIVersion','Order','GUID','WorkflowInstanceId','WorkflowVersion','WorkflowName','File_x0020_Type','DocIcon','XMLTZone','_HasCopyDestinations','_CopySource','ScopeId','LinkFilename','LinkFilenameNoMenu','FSObjType','SortBehavior','PermMask','FileDirRef','Last_x0020_Modified','Created_x0020_Date','Editor','Author']);
     const _dataKeys=items.length>0?Object.keys(items[0]).filter(k=>!_skipKeys.has(k)&&!k.startsWith('@')&&!k.startsWith('_')&&!ALIAS_SHORTS.has(k)):[];
     const viewCols=_dataKeys.length>0?_dataKeys:v.cols;
     const total=items.length;
@@ -1950,14 +1996,15 @@ function renderDeptView(view){
     }
 
     let kpis='';
-    if(view==='engineering'){
+    if(view==='substructure'||view==='superstructure'){
         // Determine each document's current revision level by checking raw column names
-        const revFields=[{key:'rev03',cols:['REV 03 (OUT MDH)']},
+        const revFields=[{key:'rev04',cols:['REV 04 (OUT MDH)','REV 04']},
+                         {key:'rev03',cols:['REV 03 (OUT MDH)']},
                          {key:'rev02',cols:['REV 02 OUT(MDH)','REV 02 IN']},
                          {key:'rev01',cols:['REV 01 OUT(MDH)','REV 01  IN']},
                          {key:'rev00',cols:['REV 00 (OUT MDH)','REV 00  IN']}];
-        const revGroups={rev00:[],rev01:[],rev02:[],rev03:[]};
-        const revStatuses={rev00:{},rev01:{},rev02:{},rev03:{}};
+        const revGroups={rev04:[],rev03:[],rev02:[],rev01:[],rev00:[]};
+        const revStatuses={rev04:{},rev03:{},rev02:{},rev01:{},rev00:{}};
         items.forEach(item=>{
             for(const rf of revFields){
                 const colName=rf.cols.find(c=>item[c]!==undefined&&item[c]!==null&&item[c]!=='');
@@ -1978,9 +2025,10 @@ function renderDeptView(view){
             const statuses=Object.entries(revStatuses[levelKey]).sort((a,b)=>b[1]-a[1]).slice(0,2);
             return statuses.map(([s,c])=>s+' ('+c+')').join(', ');
         }
-        const rev00=revGroups.rev00.length, rev01=revGroups.rev01.length, rev02=revGroups.rev02.length, rev03=revGroups.rev03.length;
-        kpis=kpi('📐','Total Documents',total,'#4C5D71',null,null,null,null,items)+
+        const rev04=revGroups.rev04.length, rev03=revGroups.rev03.length, rev02=revGroups.rev02.length, rev01=revGroups.rev01.length, rev00=revGroups.rev00.length;
+        kpis=kpi('📐','Total Drawings',total,'#4C5D71',null,null,null,null,items)+
               kpi('⏰','Overdue',overdue,'#D92C2C',null,null,null,null,items.filter(isOverdue))+
+              kpi('4️⃣','Rev 04',rev04,'#D92C2C',total?rev04/total*100:0,null,null,revStatusSummary('rev04',rev04),revGroups.rev04)+
               kpi('⬜','Rev 00',rev00,'#8A8886',total?rev00/total*100:0,null,null,revStatusSummary('rev00',rev00),revGroups.rev00)+
               kpi('1️⃣','Rev 01',rev01,'#00B7C3',total?rev01/total*100:0,null,null,revStatusSummary('rev01',rev01),revGroups.rev01)+
               kpi('2️⃣','Rev 02',rev02,'#ED7D31',total?rev02/total*100:0,null,null,revStatusSummary('rev02',rev02),revGroups.rev02)+
@@ -2034,45 +2082,7 @@ function renderDeptView(view){
             kpi('📎','MAT Submitted',matSubmitted,sc(pc(matSubmitted)),pc(matSubmitted),tr(matSubmitted,total),null,matSubmitted+'/'+total,items.filter(x=>{const m=getMatStatus(x);return m&&m!=='n/a';}))+
             kpi('✔️','MAT Approved',matApproved,sc(pc(matApproved)),pc(matApproved),tr(matApproved,total),null,matApproved+'/'+total,items.filter(x=>{const m=getMatStatus(x);return m&&m!=='n/a'&&m!=='mar open'&&m!=='mar_open';}))+
             kpi('🔄','Open MAR',matOpen,sc(pc(matOpen),true),pc(matOpen),tr(total-matOpen,total),null,matOpen+'/'+total,items.filter(x=>{const m=getMatStatus(x);return m==='mar open'||m==='mar_open';}));
-    }else if(view==='construction'){
-        const notStarted=items.filter(x=>x.status==='Not Started').length;
-        const inProgress=items.filter(x=>x.status==='In Progress').length;
-        const forInsp=items.filter(x=>x.status==='For Inspection').length;
-        const partInsp=items.filter(x=>x.status==='Partially Inspected').length;
-        const accDone=items.filter(x=>x.status==='ACC Completed').length;
-        const sdcDone=items.filter(x=>x.status==='SDC Completed').length;
-        kpis=kpi('🏗️','Total Activities',total,'#4C5D71',null,null,null,null,items)+
-              kpi('⏰','Overdue',overdue,'#D92C2C',null,null,null,null,items.filter(isOverdue))+
-              kpi('📋','Not Started',notStarted,'#8A8886',total?notStarted/total*100:0,null,null,null,items.filter(x=>x.status==='Not Started'))+
-              kpi('🔄','In Progress',inProgress,'#00B7C3',total?inProgress/total*100:0,null,'In Progress',null,items.filter(x=>x.status==='In Progress'))+
-              kpi('🔍','For Inspection',forInsp,'#ED7D31',total?forInsp/total*100:0,null,null,null,items.filter(x=>x.status==='For Inspection'))+
-              kpi('🔎','Partially Inspected',partInsp,'#FFB900',total?partInsp/total*100:0,null,null,null,items.filter(x=>x.status==='Partially Inspected'))+
-              kpi('✅','ACC Completed',accDone,'#107C10',total?accDone/total*100:0,null,null,null,items.filter(x=>x.status==='ACC Completed'))+
-              kpi('📌','SDC Completed',sdcDone,'#8764B8',total?sdcDone/total*100:0,null,null,null,items.filter(x=>x.status==='SDC Completed'));
-    }else if(view==='cost'){
-        const budget=items.reduce((s,x)=>s+(x.budget||x['Budget']||0),0);
-        const actual=items.reduce((s,x)=>s+(x.actual||x['Actual Cost']||x['Actual']||0),0);
-        const variance=budget-actual;
-        const varCls=variance>=0?'up':'down';
-        const varTxt=variance>=0?'Under Budget':'Over Budget';
-        kpis=kpi('💰','Total Budget','$'+budget.toLocaleString(),'#107C10',null,null,null,null,items)+
-              kpi('💳','Actual Cost','$'+actual.toLocaleString(),'#D92C2C',budget?Math.min(100,actual/budget*100):0,null,null,null,items)+
-              kpi('📊','Variance','$'+Math.abs(variance).toLocaleString(),variance>=0?'#00B7C3':'#ED7D31',null,{txt:varTxt,cls:varCls},null,items)+
-              kpi('✅','Under Budget',items.filter(x=>(x.budget||0)>(x.actual||0)).length,'#107C10',null,null,null,null,items.filter(x=>(x.budget||0)>(x.actual||0)))+
-              kpi('⚠️','Over Budget',items.filter(x=>(x.budget||0)<(x.actual||0)).length,'#D92C2C',null,null,null,null,items.filter(x=>(x.budget||0)<(x.actual||0)))+
-              kpi('⏰','Overdue Items',overdue,'#D92C2C',null,null,'Delayed',null,items.filter(isOverdue));
-    }else if(view==='planning'){
-        const crit=items.filter(x=>x.critical||x['Critical']==='Yes').length;
-        const avgDelay=total?Math.round(items.reduce((s,x)=>s+Math.max(0,calcDelay(x)),0)/total):0;
-        const onTrack=items.filter(x=>!isOverdue(x)).length;
-        kpis=kpi('📅','Total Activities',total,'#4C5D71',null,null,null,null,items)+
-              kpi('🔴','Critical Path',crit,'#D92C2C',crit/total*100,null,null,null,items.filter(x=>x.critical||x['Critical']==='Yes'))+
-              kpi('⏱️','Avg Delay',avgDelay+'d','#ED7D31',null,avgDelay>0?{txt:'Behind',cls:'down'}:{txt:'On Track',cls:'up'},null,null,items)+
-              kpi('⏰','Overdue',overdue,'#D92C2C',null,null,'Delayed',null,items.filter(isOverdue))+
-              kpi('✅','On Track',onTrack,'#107C10',onTrack/total*100,null,null,null,items.filter(x=>!isOverdue(x)))+
-              kpi('📊','Completed',completed,'#00B7C3',completed/total*100,null,'Completed',null,items.filter(x=>x.status==='Completed'));
-    }else if(view==='qaqc'){
-        // Method Statement status groups
+    }else if(view==='methodstatement'){
         const groups={};
         items.forEach(x=>{
             const s=x.status||'Not Set'; if(!groups[s])groups[s]=[];
@@ -2094,142 +2104,15 @@ function renderDeptView(view){
               kpi('⏰','Overdue',overdue,'#D92C2C',null,null,null,null,items.filter(isOverdue))+
               kpi('📊','Approval Rate',appRate+'%','#00B7C3',appRate,null,null,null,items)+
               kpi('🏷️','Disciplines',disciplines,'#8764B8',null,null,null,null,items);
-    }else if(view==='hse'){
-        // Task by Priority
-        const priCritical=items.filter(x=>x.priority==='Critical'||x.priority==='Urgent').length;
-        const priHigh=items.filter(x=>x.priority==='High').length;
-        const priMedium=items.filter(x=>x.priority==='Medium'||x.priority==='Normal').length;
-        const priLow=items.filter(x=>x.priority==='Low').length;
-        // Task by Category (pie chart)
-        const catCount={};
-        items.forEach(x=>{const c=x.cat||x.Category||'Uncategorized';catCount[c]=(catCount[c]||0)+1;});
-        const topCats=Object.entries(catCount).sort((a,b)=>b[1]-a[1]);
-        const catColors=['#4C5D71','#ED7D31','#00B7C3','#107C10','#8764B8','#D92C2C','#FFB900','#0078D4','#8A8886','#E8ECF0'];
-        // Monthly created vs closed (last 6 months)
-        const monthLabels=[]; const reqCounts=[]; const closeCounts=[];
-        const now=new Date();
-        for(let m=5;m>=0;m--){
-            const d=new Date(now.getFullYear(),now.getMonth()-m,1);
-            monthLabels.push(d.toLocaleString('default',{month:'short',year:'2-digit'}));
-            const monthStart=d.getTime();
-            const monthEnd=new Date(now.getFullYear(),now.getMonth()-m+1,1).getTime();
-            reqCounts.push(items.filter(x=>{const cd=x.reqDate||x.RequestedDate||x.Requested_x0020_Date||x['Requested Date'];return cd&&new Date(cd).getTime()>=monthStart&&new Date(cd).getTime()<monthEnd;}).length);
-            closeCounts.push(items.filter(x=>{const cl=x.closeDate||x.CloseDate||x.Close_x0020_Date||x['Close Date']||x.hseClose||x.CloseoutDate||x.Closeout_x0020_Date||x['Closeout Date'];if(!cl)return false;const cd=new Date(cl).getTime();return cd>=monthStart&&cd<monthEnd;}).length);
-        }
-        kpis=kpi('🛡️','Total Tasks',total,'#4C5D71',null,null,null,null,items)+
-              kpi('🔴','Critical/Urgent',priCritical,'#D92C2C',null,null,null,null,items.filter(x=>x.priority==='Critical'||x.priority==='Urgent'))+
-              kpi('🟠','High',priHigh,'#ED7D31',null,null,null,null,items.filter(x=>x.priority==='High'))+
-              kpi('🟡','Medium',priMedium,'#FFB900',null,null,null,null,items.filter(x=>x.priority==='Medium'||x.priority==='Normal'))+
-              kpi('🟢','Low',priLow,'#107C10',null,null,null,null,items.filter(x=>x.priority==='Low'));
-        // Task by Status — one KPI per unique status value
-        const statusCount={};
-        items.forEach(x=>{const s=x.status||'Not Set';statusCount[s]=(statusCount[s]||0)+1;});
-        const statusColors={'Not Started':'#8A8886','Not Set':'#8A8886','In Progress':'#0078D4','Closed':'#107C10','Completed':'#107C10','Overdue':'#D92C2C','Delayed':'#ED7D31','Cancelled':'#D92C2C','Deferred':'#8764B8','Waiting Approval':'#FFB900','Under Review':'#FFB900'};
-        const statusOrder=['Not Started','Not Set','In Progress','Under Review','Waiting Approval','Closed','Completed','Overdue','Delayed','Cancelled','Deferred'];
-        const sortedStatuses=Object.entries(statusCount).sort((a,b)=>{
-            const ia=statusOrder.indexOf(a[0]);const ib=statusOrder.indexOf(b[0]);
-            return (ia===-1?99:ia)-(ib===-1?99:ib);
-        });
-        sortedStatuses.forEach(([s,cnt])=>{
-            const color=statusColors[s]||'#8764B8';
-            const icon=s==='Closed'||s==='Completed'?'✅':s==='In Progress'?'🔄':s==='Not Started'||s==='Not Set'?'⏳':s==='Overdue'||s==='Delayed'?'⏰':s==='Cancelled'?'🚫':'📋';
-            kpis+=kpi(icon,s,cnt,color,null,null,null,null,items.filter(x=>x.status===s));
-        });
-        // Category bar chart card
-        kpis+=`<div class="kpi-card" style="grid-column:span 2;padding:12px;cursor:default;overflow:visible">
-          <div class="kpi-accent" style="background:#00B7C3"></div>
-          <div class="kpi-label">📊 Tasks by Category</div>
-          <div style="margin-top:6px;display:flex;flex-direction:row;align-items:flex-end;gap:4px;height:120px">${topCats.map(function(c){const max=topCats[0][1];const pct=max?(c[1]/max*100).toFixed(0):0;const h=pct?Math.max(4,pct):0;const ci=window._kpiCache?window._kpiCache.length:0;const cat=c[0];if(!window._kpiCache)window._kpiCache=[];window._kpiCache.push({title:'Category: '+cat,items:items.filter(function(x){return (x.cat||x.Category||'Uncategorized')===cat}),cols:viewCols});return '<div onclick="showKpiModalFromCache('+ci+')" style="flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer;height:100%"><div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;width:100%"><div style="height:'+h+'%;background:'+catColors[topCats.indexOf(c)%catColors.length]+';border-radius:3px 3px 0 0;min-height:4px;transition:height .3s"></div></div><span style="font-size:10px;font-weight:600;color:var(--text-primary);margin-top:2px;white-space:nowrap">'+c[1]+'</span><span style="font-size:9px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">'+cat+'</span></div>';}).join('')}</div>
-        </div>`;
-        // Priority line chart (last 6 months)
-        const priLabels=['Critical','Urgent','High','Medium','Low'];
-        const monthlyPri={};
-        monthLabels.forEach(ml=>{monthlyPri[ml]=priLabels.map(()=>0);});
-        items.forEach(x=>{
-            var rd=x.reqDate||x.RequestedDate||x.Requested_x0020_Date||x['Requested Date']||x.Created||x.created;
-            if(!rd)return;
-            const d=new Date(rd).getTime();
-            for(let m=5;m>=0;m--){
-                const ms=new Date(now.getFullYear(),now.getMonth()-m,1).getTime();
-                const me=new Date(now.getFullYear(),now.getMonth()-m+1,1).getTime();
-                if(d>=ms&&d<me){
-                    const idx=priLabels.indexOf(x.priority);
-                    if(idx>=0)monthlyPri[monthLabels[5-m]][idx]++;
-                }
-            }
-        });
-        console.log('[HSE Pri] monthLabels:',monthLabels,'monthlyPri:',monthlyPri,'total items:',items.length,'items with dates:',items.filter(x=>x.reqDate||x.RequestedDate||x.Requested_x0020_Date||x['Requested Date']||x.Created||x.created).length);
-        const priColors=['#D92C2C','#ED7D31','#FFB900','#107C10'];
-        kpis+=`<div class="kpi-card" style="grid-column:span 2;padding:12px;cursor:default;overflow:hidden">
-          <div class="kpi-accent" style="background:#D92C2C"></div>
-          <div class="kpi-label">📈 Priority Trend</div>
-          <div style="position:relative;height:160px;margin-top:4px"><canvas id="hse-pri-chart" style="width:100%;height:100%"></canvas></div>
-        </div>`;
-        setTimeout(function(){
-            const canvas=document.getElementById('hse-pri-chart');
-            if(!canvas||window._hsePriChart){window._hsePriChart&&window._hsePriChart.destroy();}
-            window._hsePriChart=new Chart(canvas,{type:'line',data:{
-                labels:monthLabels,
-                datasets:priLabels.map((pl,i)=>({
-                    label:pl,
-                    data:monthLabels.map(ml=>monthlyPri[ml][i]),
-                    borderColor:priColors[i],
-                    backgroundColor:priColors[i]+'20',
-                    fill:true,
-                    tension:.3,
-                    pointRadius:3
-                }))
-            },options:{
-                responsive:true,maintainAspectRatio:false,
-                plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:10}}}},
-                scales:{y:{beginAtZero:true}}
-            }});
-        },100);
-        // Gantt: tasks from requested date to target date with close marker
-        try{
-        var ganttItems=items.filter(function(x){return x.reqDate||x.RequestedDate||x.Requested_x0020_Date||x['Requested Date'];}).sort(function(a,b){return (a.reqDate||a.RequestedDate||a.Requested_x0020_Date||a['Requested Date']||'').localeCompare(b.reqDate||b.RequestedDate||b.Requested_x0020_Date||b['Requested Date']||'');});
-        console.log('[Gantt] items with reqDate:',ganttItems.length);
-        if(ganttItems.length>0){
-            var gMin=Infinity,gMax=-Infinity;
-            ganttItems.forEach(function(x){['reqDate','RequestedDate','Requested_x0020_Date','targetDate','TargetDate','Target_x0020_Date','closeDate','CloseDate','Close_x0020_Date'].forEach(function(f){if(x[f]){var t=new Date(x[f]).getTime();if(t<gMin)gMin=t;if(t>gMax)gMax=t;}});});
-            console.log('[Gantt] gMin:',new Date(gMin),'gMax:',new Date(gMax));
-            var gRange=gMax-gMin||86400000;
-            var gShow=Math.min(ganttItems.length,15);
-            var gColors={'Not Started':'#8A8886','Not Set':'#8A8886','In Progress':'#0078D4','Under Review':'#FFB900','Waiting Approval':'#ED7D31','Closed':'#107C10','Completed':'#107C10','Overdue':'#D92C2C','Delayed':'#ED7D31','Cancelled':'#D92C2C','Deferred':'#8764B8'};
-            var ganttRows='';
-            ganttItems.slice(0,gShow).forEach(function(x,i){
-                var ci=window._kpiCache.length;window._kpiCache.push({title:x.actName||x.id,items:[x],cols:viewCols});
-                var rX=((new Date(x.reqDate).getTime()-gMin)/gRange*100);
-                var tX=x.targetDate?((new Date(x.targetDate).getTime()-gMin)/gRange*100):(rX+10);
-                var cX=x.closeDate?((new Date(x.closeDate).getTime()-gMin)/gRange*100):null;
-                var w=Math.max(3,tX-rX);
-                var sc=gColors[x.status]||'#8764B8';
-                ganttRows+='<div style="display:flex;align-items:center;height:24px;font-size:10px;cursor:pointer" onclick="showKpiModalFromCache('+ci+')">'+
-                  '<span style="width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;padding-right:6px;color:var(--text-secondary)">'+(x.actName||x.id||'').substring(0,12)+'</span>'+
-                  '<div style="flex:1;position:relative;height:16px;background:#eee;border-radius:3px">'+
-                    '<div style="position:absolute;left:'+rX.toFixed(1)+'%;width:'+w.toFixed(1)+'%;height:12px;top:2px;background:'+sc+';border-radius:3px;opacity:.85;min-width:4px"></div>'+
-                    (cX!==null?'<div style="position:absolute;left:'+cX.toFixed(1)+'%;top:1px;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid #D92C2C"></div>':'')+
-                  '</div></div>';
-            });
-            var ganttHtml='<div class="kpi-card" style="grid-column:span 2;padding:12px;cursor:default;overflow:visible">'+
-              '<div class="kpi-accent" style="background:#4C5D71"></div>'+
-              '<div class="kpi-label">📅 Task Gantt: Requested → Target → Close</div>'+
-              '<div style="margin-top:6px">'+
-              '<div style="display:flex;gap:3px;padding-left:86px;margin-bottom:2px">';
-            var gm=new Date(gMin);gm.setDate(1);
-            while(gm.getTime()<gMax){
-                ganttHtml+='<div style="flex:1;text-align:center;font-size:8px;color:var(--text-secondary);border-left:1px solid #ddd">'+gm.toLocaleString('en',{month:'short',year:'2-digit'})+'</div>';
-                gm.setMonth(gm.getMonth()+1);
-            }
-            ganttHtml+='</div>'+ganttRows;
-            if(ganttItems.length>gShow)ganttHtml+='<div style="text-align:center;font-size:10px;color:var(--text-secondary);margin-top:4px">+'+(ganttItems.length-gShow)+' more</div>';
-            ganttHtml+='<div style="display:flex;gap:16px;margin-top:6px;font-size:9px;color:var(--text-secondary)"><span><span style="display:inline-block;width:12px;height:8px;background:#4C5D71;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Req→Target</span><span><span style="display:inline-block;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid #D92C2C;vertical-align:middle;margin-right:4px"></span>Closed</span></div>';
-            kpis+=ganttHtml+'</div></div>';
-            console.log('[Gantt] rendered OK');
-        }else{
-            console.log('[Gantt] no items with reqDate');
-        }
-        }catch(e){console.error('[Gantt] ERROR:',e.message);}
+    }else if(view==='calculations'){
+        const approved=items.filter(x=>x.status==='Approved'||x.status==='Completed').length;
+        const inReview=items.filter(x=>x.status==='Under Review'||x.status==='In Review').length;
+        const pending=items.filter(x=>x.status==='Pending'||x.status==='Not Started').length;
+        kpis=kpi('🧮','Total Calcs',total,'#4C5D71',null,null,null,null,items)+
+              kpi('✅','Approved',approved,'#107C10',total?approved/total*100:0,null,null,null,items.filter(x=>x.status==='Approved'||x.status==='Completed'))+
+              kpi('🔍','In Review',inReview,'#0078D4',total?inReview/total*100:0,null,null,null,items.filter(x=>x.status==='Under Review'||x.status==='In Review'))+
+              kpi('⏳','Pending',pending,'#ED7D31',total?pending/total*100:0,null,null,null,items.filter(x=>x.status==='Pending'||x.status==='Not Started'))+
+              kpi('⏰','Overdue',overdue,'#D92C2C',null,null,null,null,items.filter(isOverdue));
     }else{
         kpis=kpi('📊','Total Items',total,'#4C5D71',null,null,null,null,items)+
               kpi('📈','Completed',completed,'#107C10',total?completed/total*100:0,null,'Completed',null,items.filter(x=>x.status==='Completed'))+
@@ -2285,6 +2168,12 @@ function switchView(view){
     currentView=view;
     sortCol=null;sortAsc=true;
     document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+    // Auto-open parent folder
+    document.querySelectorAll('.nav-folder').forEach(f=>{
+        const hasActive=!!f.querySelector('.nav-item.active');
+        f.querySelector('.nav-folder-items')?.classList.toggle('open',hasActive);
+        f.querySelector('.arrow')?.classList.toggle('open',hasActive);
+    });
     const vd=viewData[view];
     const useViewData=view!=='dashboard'&&vd&&vd.connected&&vd.data.length>0;
     document.getElementById('view-title').textContent=VIEWS[view].title+(useViewData&&vd.list?' ('+vd.list+')':'');
@@ -2304,6 +2193,12 @@ function switchView(view){
 function toggleSidebar(){
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('backdrop').classList.toggle('show');
+}
+function toggleFolder(el){
+    const arrow=el.querySelector('.arrow');
+    const items=el.nextElementSibling;
+    const open=items.classList.toggle('open');
+    arrow.classList.toggle('open',open);
 }
 
 // Safe storage wrapper (handles sandboxed iframes where localStorage throws)
@@ -2483,12 +2378,12 @@ function getMyAccess(deptId){
 
 function hasAnyAccess(){
   if(myPerms==='ALL') return true;
-  return ['engineering','procurement','qaqc','hse'].some(k=>getMyAccess(k)!=='none');
+  return ['substructure','superstructure','calculations','methodstatement','procurement'].some(k=>getMyAccess(k)!=='none');
 }
 
 // Map view key to permission dept ID
 function viewToDeptId(viewKey){
-  const m={procurement:'procurement',engineering:'engineering',construction:'construction',cost:'cost',planning:'planning',qaqc:'qaqc',hse:'hse'};
+  const m={procurement:'procurement',substructure:'substructure',superstructure:'superstructure',calculations:'calculations',methodstatement:'methodstatement'};
   return m[viewKey]||null;
 }
 
@@ -2544,7 +2439,7 @@ function toggleDark(){
 
 // ======================== SETUP HELPERS ========================
 function finishSetup(){
-    if(DATA.length===0&&DEMO_DATA.length>0){ DATA=[...DEMO_DATA]; dataSource='demo'; }
+    if(DATA.length===0&&DEMO_DATA.length>0){ DATA=[...DEMO_DATA]; }
     updateCounts();
     updateBadge();
     VIEW_KEYS.forEach(v=>updateViewNavDot(v));
@@ -2563,12 +2458,6 @@ function finishSetup(){
         document.body.classList.add('dark');
         document.getElementById('dark-toggle').textContent='☀️';
     }
-    // Restore saved config
-    const savedSite=storage.getItem('pmt-site');
-    const savedList=storage.getItem('pmt-list');
-    if(savedSite)document.getElementById('cfg-site').value=savedSite;
-    if(savedList)document.getElementById('cfg-list').value=savedList;
-    if(document.getElementById('cfg-link'))document.getElementById('cfg-link').value='https://sascontractingsa-my.sharepoint.com/:l:/g/personal/m_hajissa_alenshaiah_com/JAB0SL2Dg68dR4O0jC1UxIc1AdT1ZhpFsFXSzoRpZuLNvbI?e=c6RN2T';
     // Restore per-view configs
     VIEW_KEYS.forEach(v=>{
         const site=storage.getItem('pmt-view-'+v+'-site');
@@ -2576,34 +2465,19 @@ function finishSetup(){
         if(site) viewData[v].site=site;
         if(list) viewData[v].list=list;
     });
-    // Clear stale configs for hidden views
-    if(viewData.cost.list&&viewData.cost.list==='Construction Cost'){viewData.cost.site='';viewData.cost.list='';storage.removeItem('pmt-view-cost-site');storage.removeItem('pmt-view-cost-list');}
-    if(viewData.planning.list&&viewData.planning.list==='Planning Tracker'){viewData.planning.site='';viewData.planning.list='';storage.removeItem('pmt-view-planning-site');storage.removeItem('pmt-view-planning-list');}
-    // Pre-fill Engineering view with Shop Drawing list as default
-    if(!viewData.engineering.site){
-        viewData.engineering.site='https://sascontractingsa.sharepoint.com/sites/Alenshaiah';
-        viewData.engineering.list='Shop Drawing Status';
-    }
-    // Pre-fill Construction view with Maseel Activity list as default
-    if(!viewData.construction.site){
-        viewData.construction.site='https://sascontractingsa.sharepoint.com/sites/Alenshaiah';
-        viewData.construction.list='Maseel Activity';
-    }
-    // Pre-fill Procurement view
-    if(!viewData.procurement.site){
-        viewData.procurement.site='https://sascontractingsa.sharepoint.com/sites/Alenshaiah';
-        viewData.procurement.list='Procurement_Tracker Log';
-    }
-    // Pre-fill QA/QC view
-    if(!viewData.qaqc.site){
-        viewData.qaqc.site='https://sascontractingsa.sharepoint.com/sites/Alenshaiah';
-        viewData.qaqc.list='QAQC Tracker';
-    }
-    // Pre-fill HSE view
-    if(!viewData.hse.site){
-        viewData.hse.site='https://sascontractingsa.sharepoint.com/sites/Alenshaiah';
-        viewData.hse.list='HSE Tracker';
-    }
+    // Pre-fill per-view list defaults
+    const SITE = 'https://sascontractingsa.sharepoint.com/sites/Alenshaiah';
+    const LIST_DEFAULTS = {
+        procurement:'procurement',
+        substructure:'SUBSTRUCTURE',
+        superstructure:'superstructure',
+        calculations:'calculations',
+        methodstatement:'method statement'
+    };
+    VIEW_KEYS.forEach(v=>{
+        if(!viewData[v].site) viewData[v].site = SITE;
+        if(!viewData[v].list) viewData[v].list = LIST_DEFAULTS[v];
+    });
 
     // Restore or save default Azure AD config
     let savedTenant=storage.getItem('pmt-tenant');
