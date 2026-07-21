@@ -1316,7 +1316,22 @@ async function importBulkItems(){
   btn.disabled=true;statusEl.className='save-status saving';statusEl.textContent='Importing...';
   const validCols=bulkData.mapping.filter(m=>m.col).map(m=>m.col.name);
   const total=bulkData.rows.length;
-  let success=0,fail=0;
+  let success=0,fail=0,updated=0,created=0;
+  const matchKeys=['Title','DRAWINGS NO.','DRAWING NO.','Drawing_x0020_Number','DrawingNumber','Drawing No.','S.No','S_x002e_No_x002e_'];
+  function findMatch(fields,existing){
+    for(const ek of matchKeys){
+      const fv=fields[ek];
+      if(fv===undefined||fv===null||String(fv).trim()==='')continue;
+      const v=String(fv).trim();
+      for(const item of existing){
+        for(const ik of matchKeys){
+          const iv=item[ik];
+          if(iv!==undefined&&iv!==null&&String(iv).trim()!==''&&String(iv).trim()===v)return item;
+        }
+      }
+    }
+    return null;
+  }
   for(let i=0;i<total;i++){
     const row=bulkData.rows[i];
     const fields={};
@@ -1329,7 +1344,14 @@ async function importBulkItems(){
       }
     });
     try{
-      await createSPItem(currentDept.site,currentDept.list,fields);
+      const matched=findMatch(fields,allItems);
+      if(matched){
+        await updateSPItem(currentDept.site,currentDept.list,matched._id,fields);
+        updated++;
+      }else{
+        await createSPItem(currentDept.site,currentDept.list,fields);
+        created++;
+      }
       success++;
     }catch(e){
       fail++;
@@ -1339,9 +1361,10 @@ async function importBulkItems(){
       statusEl.textContent='Importing... '+Math.round((i+1)/total*100)+'% ('+success+' ok, '+fail+' failed)';
     }
   }
+  const msg=created>0&&updated>0?(created+' created, '+updated+' updated'):created>0?(created+' created'):(updated+' updated');
   statusEl.className='save-status '+(fail===0?'saved':'error');
-  statusEl.textContent=fail===0?'✓ '+success+' items created':'✓ '+success+' created, ✗ '+fail+' failed';
-  showToast(fail===0?'All '+success+' items created':success+' created, '+fail+' failed','success');
+  statusEl.textContent=fail===0?'✓ '+msg:'✓ '+msg+', ✗ '+fail+' failed';
+  showToast(fail===0?msg:msg+', '+fail+' failed','success');
   await refreshItems();
   btn.disabled=false;
   if(fail===0)setTimeout(()=>closeBulkUpload(),1500);
