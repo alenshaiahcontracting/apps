@@ -974,6 +974,7 @@ function renderTable(){
         let v=item[lookup]!==undefined?item[lookup]:'';
         if(v&&typeof v==='object'){v=v.LookupValue||v.Title||v.Email||JSON.stringify(v).substring(0,50);}
         if(c.type==='boolean')v=v?'✓':'';
+        if((c.type==='date'||c.type==='DateTime')&&typeof v==='string')v=v.slice(0,10);
         const s=htmlEscape(stripHtml(v));
         return `<td title="${s}">${s.substring(0,80)}</td>`;
       }).join('')}
