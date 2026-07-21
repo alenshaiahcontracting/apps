@@ -348,8 +348,15 @@ function permApi(id){
 
 async function loadPerms(){
   try{
-    const data=await spGet(permApi());
-    permItems=data.d?data.d.results:(data.value||[]);
+    let allItems=[];
+    let nextUrl=permApi()+'?$top=5000&$orderby=ID asc';
+    while(nextUrl){
+      const data=await spGet(nextUrl);
+      const batch=data.d?data.d.results:(data.value||[]);
+      allItems=allItems.concat(batch);
+      nextUrl=(data.d&&data.d.__next)?data.d.__next:(data['@odata.nextLink']||null);
+    }
+    permItems=allItems;
   }catch(e){
     if(e.message.includes('404')){permItems=[];showToast('Permissions list not found. Create it in SharePoint.','error');}
     else{showToast('Failed to load: '+e.message,'error');permItems=[];}
